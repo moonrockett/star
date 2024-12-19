@@ -683,7 +683,7 @@ body {
         <div class="flex items-center gap-2">
           <div class="copy-wrapper">
             <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
-            <button class="copy-button" onclick="copyToClipboard('tonAddress')">
+            <button class="copy-button" onclick="copyToClipboard(&apos;tonAddress&apos;)">
               <span class="material-icons text-gray-300">content_copy</span>
             </button>
           </div>
@@ -699,14 +699,14 @@ body {
         <div class="flex items-center gap-2">
           <div class="copy-wrapper">
             <p class="text-white break-all flex-1" id="orderId"></p>
-            <button class="copy-button" onclick="copyToClipboard('orderId')">
+            <button class="copy-button" onclick="copyToClipboard(&apos;orderId&apos;)">
               <span class="material-icons text-gray-300">content_copy</span>
             </button>
           </div>
         </div>
       </div>
 
-      <a href="#" id="openWalletButton" class="wallet-button">
+      <a href="#" id="openWalletButton" class="wallet-button" target="_blank" rel="noopener noreferrer">
         <span class="material-icons">account_balance_wallet</span>
         Send via TON Wallet
       </a>
@@ -726,7 +726,7 @@ body {
           </li>
           <li>
             <span class="material-icons">comment</span>
-            <span>Don't forget to include your Order ID and Telegram username as a comment in your transaction.</span>
+            <span>Don&apos;t forget to include your Order ID and Telegram username as a comment in your transaction.</span>
           </li>
           <li>
             <span class="material-icons">content_copy</span>
@@ -748,7 +748,7 @@ body {
 
 <script>function createStarfield() {
   const starfield = document.getElementById('starfield');
-  const numberOfStars = 500; 
+  const numberOfStars = 500;
   for (let i = 0; i < numberOfStars; i++) {
     const star = document.createElement('div');
     star.className = 'star';
@@ -822,7 +822,7 @@ function updateWalletLink() {
   const address = tonAddress.textContent;
   const memo = orderId.textContent;
   const nanocoins = Math.floor(amount * 1000000000);
-  const tonDeepLink = `ton://transfer/${address}?amount=${nanocoins}`;
+  const tonDeepLink = `ton://transfer/${address}?amount=${nanocoins}&text=${memo}`;
   openWalletButton.href = tonDeepLink;
 }
 function openModal() {
@@ -847,7 +847,7 @@ function createShootingStar() {
   });
 }
 setInterval(() => {
-  if (Math.random() < 0.3) { 
+  if (Math.random() < 0.3) {
     createShootingStar();
   }
 }, 2000);
@@ -888,6 +888,5 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', adjustContainerHeight);
   adjustContainerHeight();
 });
-document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";
-</script>
+document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";</script>
 </div></body></html>

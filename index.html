@@ -140,7 +140,12 @@ body {
   min-height: 100vh;
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  display: flex;
+  flex-direction: column;
+  position: fixed; 
+  width: 100%;
+  height: 100%;
 }
 
 .noise {
@@ -154,35 +159,30 @@ body {
   pointer-events: none;
 }
 
+.container {
+  padding-top: 48px;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
 .glass-card {
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
   border-radius: 24px;
   padding: 64px 24px 24px;
-  box-shadow: 0 8px 32px rgba(218, 165, 32, 0.2);
   border: 1px solid rgba(218, 165, 32, 0.15);
   position: relative;
   overflow: visible;
 }
 
-.glass-card.hidden {
+.glass-card::before {
   display: none;
 }
 
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-  transform: rotate(45deg);
-  pointer-events: none;
-}
-
-#paymentModal.glass-card {
-  padding: 24px 24px 24px;
+.glass-card.hidden {
+  display: none;
 }
 
 .amount-control {
@@ -468,10 +468,6 @@ body {
 
 .toast-notification.show {
   opacity: 1;
-}
-
-.container {
-  padding-top: 48px;
 }
 
 .star-logo {
@@ -859,6 +855,12 @@ document.addEventListener('DOMContentLoaded', function () {
       loadingOverlay.style.display = 'none';
     }, 300);
   }, 4000);
+  function adjustContainerHeight() {
+    const container = document.querySelector('.container');
+    container.style.height = `${window.innerHeight}px`;
+  }
+  window.addEventListener('resize', adjustContainerHeight);
+  adjustContainerHeight();
 });
 document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";</script>
 </div></body></html>

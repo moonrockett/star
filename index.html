@@ -1,0 +1,545 @@
+<html><head><base href=".">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Star Shop</title>
+
+<link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+:root {
+  --background: 0 0% 0%;
+  --foreground: 45 100% 50%;
+  --card: 0 0% 0%;
+  --card-foreground: 45 100% 50%;
+  --popover: 0 0% 0%;
+  --popover-foreground: 45 100% 50%;
+  --primary: 45 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 45 30% 20%;
+  --secondary-foreground: 45 100% 50%;
+  --muted: 45 30% 20%;
+  --muted-foreground: 45 70% 70%;
+  --accent: 45 30% 20%;
+  --accent-foreground: 45 100% 50%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 45 100% 50%;
+  --border: 45 30% 20%;
+  --input: 45 30% 20%;
+  --ring: 45 70% 50%;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+@keyframes shootingStar {
+  0% {
+    transform: translate(-100%, -100%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(200%, 200%);
+    opacity: 0;
+  }
+}
+
+@keyframes buttonPress {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  border-radius: 50%;
+}
+
+.shooting-star {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, goldenrod, transparent);
+  border-radius: 50%;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+#starfield {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body {
+  background: linear-gradient(135deg, rgb(0, 0, 0) 0%, rgb(20, 20, 20) 100%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+}
+
+.noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.glass-card {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(218, 165, 32, 0.2);
+  border: 1px solid rgba(218, 165, 32, 0.15);
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.glass-card.hidden {
+  display: none;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.amount-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.amount-button {
+  background: rgba(218, 165, 32, 0.1);
+  border: 2px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: goldenrod;
+  font-size: 24px;
+  cursor: pointer;
+  transform-origin: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.amount-button:active {
+  animation: buttonPress 0.2s ease-in-out;
+}
+
+.amount-button:hover {
+  transform: scale(1.1);
+  background: rgba(218, 165, 32, 0.3);
+  box-shadow: 0 0 20px rgba(218, 165, 32, 0.4);
+}
+
+.amount-display {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  color: goldenrod;
+  flex: 1;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.primary-button {
+  background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+  color: white;
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 1.1em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primary-button:active {
+  transform: scale(0.95);
+}
+
+.primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(218, 165, 32, 0.4);
+  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+}
+
+.modal {
+  display: block;
+  position: static;
+  background: none;
+  backdrop-filter: none;
+  z-index: 0;
+}
+
+.modal-content {
+  position: static;
+  transform: none;
+  top: auto;
+  left: auto;
+  width: 100%;
+  max-width: none;
+  background: none;
+  box-shadow: none;
+  border: none;
+  padding: 0;
+}
+
+.close-button {
+  display: none;
+}
+
+.copy-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.wallet-button {
+  background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+  color: white;
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+  font-size: 1.1em;
+  margin-top: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.wallet-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(218, 165, 32, 0.4);
+  background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+}
+
+.wallet-button.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(218, 165, 32, 0.2);
+  margin-top: 8px;
+}
+
+.wallet-button.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.text-golden-accent {
+  color: goldenrod;
+  opacity: 0.8;
+}
+
+.animate-pulse {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.warning-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(255, 87, 34, 0.1);
+  border: 1px solid rgba(255, 87, 34, 0.3);
+  border-radius: 12px;
+}
+
+.warning-title {
+  color: #ff5722;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.warning-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #fff;
+}
+
+.warning-list li {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.warning-list .material-icons {
+  font-size: 16px;
+  color: #ff5722;
+  margin-top: 3px;
+}
+</style>
+</head>
+<body>
+<div id="starfield"></div>
+<div class="noise"></div>
+
+<div class="container mx-auto px-4 py-8 max-w-md">
+  <div class="glass-card">
+    <div class="text-center mb-8">
+      <span class="material-icons animate-pulse" style="font-size: 48px; color: goldenrod;">star_rate</span>
+      <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
+      <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
+      <p class="text-sm text-golden-accent">No KYC required</p>
+    </div>
+
+    <div class="mb-6">
+      <label class="block text-gray-300 mb-2 flex items-center gap-2">
+        <span class="material-icons">shopping_cart</span>
+        Number of Stars
+      </label>
+      <div class="amount-control">
+        <button class="amount-button" id="decreaseBtn">-</button>
+        <div class="amount-display" id="starsDisplay">50</div>
+        <button class="amount-button" id="increaseBtn">+</button>
+      </div>
+      <p class="text-sm text-gray-400 mt-1 flex items-center gap-2">
+        <span class="material-icons" style="font-size: 16px;">info</span>
+        Minimum purchase: 50 stars
+      </p>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex justify-between items-center text-gray-300 mb-2">
+        <span class="flex items-center gap-2">
+          <span class="material-icons">paid</span>
+          Price per 50 stars:
+        </span>
+        <span>0.13 TON</span>
+      </div>
+      <div class="flex justify-between items-center text-white font-bold">
+        <span class="flex items-center gap-2">
+          <span class="material-icons">attach_money</span>
+          Total Price:
+        </span>
+        <span id="totalPrice">0.13 TON</span>
+      </div>
+    </div>
+
+    <button class="primary-button" id="purchaseBtn">
+      <span class="material-icons">payment</span>
+      Generate Payment Details
+    </button>
+  </div>
+  
+  <!-- Payment details section (formerly modal) -->
+  <div id="paymentModal" class="glass-card" style="display: none;">
+    <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+      <span class="material-icons">receipt_long</span>
+      Payment Details
+    </h3>
+    
+    <div class="space-y-4">
+      <div>
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">account_balance_wallet</span>
+          TON Address:
+        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
+          <button class="copy-button" onclick="copyToClipboard(&apos;tonAddress&apos;)">
+            <span class="material-icons text-gray-300">content_copy</span>
+          </button>
+        </div>
+      </div>
+      <div>
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">tag</span>
+          Order ID (add as memo):
+        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-white break-all flex-1" id="orderId"></p>
+          <button class="copy-button" onclick="copyToClipboard(&apos;orderId&apos;)">
+            <span class="material-icons text-gray-300">content_copy</span>
+          </button>
+        </div>
+      </div>
+      <a href="#" id="openWalletButton" class="wallet-button">
+        <span class="material-icons">account_balance_wallet</span>
+        Open in TON Wallet
+      </a>
+      <button class="wallet-button back-button" onclick="closeModal()" style="margin-top: 8px; background: rgba(255, 255, 255, 0.1);">
+        <span class="material-icons">arrow_back</span>
+        Back to Purchase
+      </button>
+    </div>
+  </div>
+  
+  <div class="warning-section">
+    <div class="warning-title">
+      <span class="material-icons">warning</span>
+      Important Instructions
+    </div>
+    <ul class="warning-list">
+      <li>
+        <span class="material-icons">priority_high</span>
+        <span>You MUST send the EXACT amount shown above. Nothing more, nothing less!</span>
+      </li>
+      <li>
+        <span class="material-icons">comment</span>
+        <span>Don&apos;t forget to include the Order ID as a comment in your transaction.</span>
+      </li>
+      <li>
+        <span class="material-icons">content_copy</span>
+        <span>Tap the wallet address to copy it. Sending to an incorrect address will result in permanent loss of funds.</span>
+      </li>
+      <li>
+        <span class="material-icons">support_agent</span>
+        <span>After completing the transaction, please share a screenshot with @Starshopsupport. For any issues, contact our support team.</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>function createStarfield() {
+  const starfield = document.getElementById('starfield');
+  const numberOfStars = 100;
+  for (let i = 0; i < numberOfStars; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.animation = `twinkle ${1 + Math.random() * 3}s infinite ${Math.random() * 3}s`;
+    starfield.appendChild(star);
+  }
+}
+createStarfield();
+const starsDisplay = document.getElementById('starsDisplay');
+const increaseBtn = document.getElementById('increaseBtn');
+const decreaseBtn = document.getElementById('decreaseBtn');
+const totalPrice = document.getElementById('totalPrice');
+const purchaseBtn = document.getElementById('purchaseBtn');
+const modal = document.getElementById('paymentModal');
+const orderId = document.getElementById('orderId');
+const openWalletButton = document.getElementById('openWalletButton');
+const tonAddress = document.getElementById('tonAddress');
+let currentStars = 50;
+function updateDisplay() {
+  starsDisplay.textContent = currentStars;
+  totalPrice.textContent = calculatePrice(currentStars) + ' TON';
+}
+function generateOrderId() {
+  return 'ORDER-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+}
+function calculatePrice(stars) {
+  return (Math.ceil(stars / 50) * 0.13).toFixed(2);
+}
+function copyToClipboard(elementId) {
+  const text = document.getElementById(elementId).textContent;
+  navigator.clipboard.writeText(text).then(() => {});
+}
+function updateWalletLink() {
+  const amount = calculatePrice(currentStars);
+  const address = tonAddress.textContent;
+  const memo = orderId.textContent;
+  const tonDeepLink = `ton://transfer/${address}?amount=${Math.floor(amount * 1000000000)}&text=${encodeURIComponent(memo)}`;
+  openWalletButton.href = tonDeepLink;
+}
+function openModal() {
+  document.querySelector('.glass-card').classList.add('hidden');
+  modal.style.display = 'block';
+}
+function closeModal() {
+  modal.style.display = 'none';
+  document.querySelector('.glass-card').classList.remove('hidden');
+}
+function createShootingStar() {
+  const star = document.createElement('div');
+  star.className = 'shooting-star';
+  star.style.top = Math.random() * 50 + '%';
+  star.style.left = Math.random() * 50 + '%';
+  star.style.animation = `shootingStar ${1.5 + Math.random()}s linear forwards`;
+  document.body.appendChild(star);
+  star.addEventListener('animationend', () => {
+    star.remove();
+  });
+}
+setInterval(() => {
+  if (Math.random() < 0.3) {
+    createShootingStar();
+  }
+}, 2000);
+increaseBtn.addEventListener('click', () => {
+  currentStars += 50;
+  updateDisplay();
+  increaseBtn.style.animation = 'none';
+  increaseBtn.offsetHeight;
+  increaseBtn.style.animation = null;
+});
+decreaseBtn.addEventListener('click', () => {
+  if (currentStars > 50) {
+    currentStars -= 50;
+    updateDisplay();
+    decreaseBtn.style.animation = 'none';
+    decreaseBtn.offsetHeight;
+    decreaseBtn.style.animation = null;
+  }
+});
+purchaseBtn.addEventListener('click', function () {
+  const newOrderId = generateOrderId();
+  orderId.textContent = newOrderId;
+  updateWalletLink();
+  openModal();
+});</script>
+</body></html>

@@ -536,6 +536,24 @@ body {
   opacity: 0.7;
   margin-right: 8px;
 }
+
+.value-display {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.copy-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex: 1;
+}
 </style>
 </head>
 <body>
@@ -630,7 +648,7 @@ body {
           Stars to Purchase:
         </p>
         <div class="flex items-center gap-2">
-          <p class="text-white break-all flex-1" id="starsQuantity">50 Stars</p>
+          <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 Stars</p>
         </div>
       </div>
 
@@ -641,7 +659,7 @@ body {
           Network:
         </p>
         <div class="flex items-center gap-2">
-          <p class="text-white break-all flex-1">TON (The Open Network)</p>
+          <p class="text-white break-all flex-1 value-display">TON (The Open Network)</p>
         </div>
       </div>
 
@@ -652,7 +670,7 @@ body {
           Amount to Pay:
         </p>
         <div class="flex items-center gap-2">
-          <p class="text-white break-all flex-1" id="paymentAmount">0.13 TON</p>
+          <p class="text-white break-all flex-1 value-display" id="paymentAmount">0.13 TON</p>
         </div>
       </div>
       
@@ -663,10 +681,12 @@ body {
           TON Address:
         </p>
         <div class="flex items-center gap-2">
-          <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
-          <button class="copy-button" onclick="copyToClipboard('tonAddress')">
-            <span class="material-icons text-gray-300">content_copy</span>
-          </button>
+          <div class="copy-wrapper">
+            <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
+            <button class="copy-button" onclick="copyToClipboard('tonAddress')">
+              <span class="material-icons text-gray-300">content_copy</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -677,16 +697,18 @@ body {
           Order ID (add as memo):
         </p>
         <div class="flex items-center gap-2">
-          <p class="text-white break-all flex-1" id="orderId"></p>
-          <button class="copy-button" onclick="copyToClipboard('orderId')">
-            <span class="material-icons text-gray-300">content_copy</span>
-          </button>
+          <div class="copy-wrapper">
+            <p class="text-white break-all flex-1" id="orderId"></p>
+            <button class="copy-button" onclick="copyToClipboard('orderId')">
+              <span class="material-icons text-gray-300">content_copy</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <a href="#" id="openWalletButton" class="wallet-button">
         <span class="material-icons">account_balance_wallet</span>
-        Send via TON Keeper
+        Send via TON Wallet
       </a>
       <button class="wallet-button back-button" onclick="closeModal()" style="margin-top: 8px; background: rgba(255, 255, 255, 0.1);">
         <span class="material-icons">arrow_back</span>
@@ -800,8 +822,8 @@ function updateWalletLink() {
   const address = tonAddress.textContent;
   const memo = orderId.textContent;
   const nanocoins = Math.floor(amount * 1000000000);
-  const tonkeeperLink = `https://app.tonkeeper.com/transfer/${address}?amount=${nanocoins}`;
-  openWalletButton.href = tonkeeperLink;
+  const tonDeepLink = `ton://transfer/${address}?amount=${nanocoins}`;
+  openWalletButton.href = tonDeepLink;
 }
 function openModal() {
   document.querySelector('.glass-card').classList.add('hidden');

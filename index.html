@@ -871,7 +871,7 @@ function updateWalletLink() {
   const address = tonAddress.textContent;
   const memo = orderId.textContent;
   const nanocoins = Math.floor(amount * 1000000000);
-  const tonDeepLink = `ton://transfer/${address}?amount=${nanocoins}`;
+  const tonDeepLink = `ton://transfer/${address}?amount=${nanocoins}&text=${memo}`;
   openWalletButton.href = tonDeepLink;
 }
 function openModal() {

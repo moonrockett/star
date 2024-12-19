@@ -41,8 +41,12 @@
 }
 
 @keyframes glow {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.3); }
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
 }
 
 @keyframes shootingStar {
@@ -60,6 +64,47 @@
   0% { transform: scale(1); }
   50% { transform: scale(0.9); }
   100% { transform: scale(1); }
+}
+
+@keyframes loadingDots {
+  0%, 15% { content: ''; }
+  20%, 35% { content: '.'; }
+  40%, 55% { content: '..'; }
+  60%, 75% { content: '...'; }
+  80%, 95% { content: ''; }
+  100% { content: ''; }
+}
+
+@keyframes fillStar {
+  0% {
+    clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  }
+  20% {
+    clip-path: polygon(0% 70%, 100% 70%, 100% 100%, 0% 100%);
+  }
+  30% {
+    clip-path: polygon(0% 70%, 100% 70%, 100% 100%, 0% 100%);
+  }
+  50% {
+    clip-path: polygon(0% 40%, 100% 40%, 100% 100%, 0% 100%);
+  }
+  60% {
+    clip-path: polygon(0% 40%, 100% 40%, 100% 100%, 0% 100%);
+  }
+  80% {
+    clip-path: polygon(0% 10%, 100% 10%, 100% 100%, 0% 100%);
+  }
+  85% {
+    clip-path: polygon(0% 10%, 100% 10%, 100% 100%, 0% 100%);
+  }
+  100% {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  }
+}
+
+@keyframes starPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
 }
 
 .star {
@@ -113,12 +158,11 @@ body {
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
   border-radius: 24px;
-  padding: 24px;
+  padding: 64px 24px 24px;
   box-shadow: 0 8px 32px rgba(218, 165, 32, 0.2);
   border: 1px solid rgba(218, 165, 32, 0.15);
   position: relative;
-  overflow: hidden;
-  transition: opacity 0.3s ease;
+  overflow: visible;
 }
 
 .glass-card.hidden {
@@ -135,6 +179,10 @@ body {
   background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
   transform: rotate(45deg);
   pointer-events: none;
+}
+
+#paymentModal.glass-card {
+  padding: 24px 24px 24px;
 }
 
 .amount-control {
@@ -158,6 +206,9 @@ body {
   cursor: pointer;
   transform-origin: center;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 0;
+  padding: 0;
+  user-select: none;
 }
 
 .amount-button:active {
@@ -330,10 +381,6 @@ body {
   margin-top: 3px;
 }
 
-.warning-list li:nth-child(2) span:last-child {
-  content: "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";
-}
-
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -350,6 +397,7 @@ body {
   gap: 16px;
   transition: opacity 0.3s ease;
   opacity: 1;
+  padding-bottom: 48px;
 }
 
 .loading-progress {
@@ -366,13 +414,36 @@ body {
 
 .loading-dots {
   color: goldenrod;
+}
+
+.loading-dots:after {
+  content: '';
   animation: loadingDots 1.5s infinite;
 }
 
-@keyframes loadingDots {
-  0%, 20% { content: '.'; }
-  40%, 60% { content: '..'; }
-  80%, 100% { content: '...'; }
+.loading-star {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 20px;
+}
+
+.loading-star path:first-child {
+  animation: starPulse 1s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.loading-star path {
+  fill: none;
+  stroke: goldenrod; 
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.loading-star .star-fill {
+  fill: goldenrod;
+  clip-path: polygon(0% 100%, 100% 100%, 100% 100%, 0% 100%);
+  animation: fillStar 2s ease-in-out forwards;
 }
 
 .toast-notification {
@@ -398,14 +469,88 @@ body {
 .toast-notification.show {
   opacity: 1;
 }
+
+.container {
+  padding-top: 48px;
+}
+
+.star-logo {
+  width: 48px;
+  height: 48px;
+  margin: -24px auto 20px;
+  animation: glow 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(218,165,32,0.5));
+  position: relative;
+}
+
+.star-logo path {
+  fill: goldenrod;
+  stroke: none;
+}
+
+.star-logo::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  background: radial-gradient(circle at center, rgba(218,165,32,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: -1;
+  animation: spill 2s ease-in-out infinite;
+}
+
+@keyframes spill {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.5); 
+    opacity: 0.8;
+  }
+}
+
+.special-offer {
+  background: rgba(218, 165, 32, 0.1);
+  border: 1px solid rgba(218, 165, 32, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.special-offer .material-icons {
+  color: goldenrod;
+  animation: glow 2s ease-in-out infinite;
+}
+
+.special-offer-text {
+  color: white;
+  font-size: 0.9em;
+}
+
+.special-offer-highlight {
+  color: goldenrod;
+  font-weight: bold;
+}
+
+.price-strike {
+  text-decoration: line-through;
+  opacity: 0.7;
+  margin-right: 8px;
+}
 </style>
 </head>
 <body>
 <div id="loadingOverlay" class="loading-overlay">
-  <span class="material-icons animate-pulse" style="font-size: 48px;">star_rate</span>
+  <svg class="loading-star" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
+    <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
+    <path class="star-fill" d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
+  </svg>
   <div class="loading-progress">
-    <div class="loading-text">Loading Stars</div>
-    <div class="loading-dots">...</div>
+    <div class="loading-text">Stars Loading</div>
+    <div class="loading-dots"></div>
   </div>
 </div>
 <div id="starfield"></div>
@@ -414,7 +559,9 @@ body {
 <div class="container mx-auto px-4 py-8 max-w-md">
   <div class="glass-card">
     <div class="text-center mb-8">
-      <span class="material-icons animate-pulse" style="font-size: 48px; color: goldenrod;">star_rate</span>
+      <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
+        <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
+      </svg>
       <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
       <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
       <p class="text-sm text-golden-accent">No KYC required</p>
@@ -429,6 +576,12 @@ body {
         <button class="amount-button" id="decreaseBtn">-</button>
         <div class="amount-display" id="starsDisplay">50</div>
         <button class="amount-button" id="increaseBtn">+</button>
+      </div>
+      <div class="special-offer">
+        <span class="material-icons">local_offer</span>
+        <div class="special-offer-text">
+          Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
+        </div>
       </div>
       <p class="text-sm text-gray-400 mt-1 flex items-center gap-2">
         <span class="material-icons" style="font-size: 16px;">info</span>
@@ -466,7 +619,48 @@ body {
       Payment Details
     </h3>
     
+    <div class="mt-2">
+      <p class="text-sm text-golden-accent flex items-center gap-2 mb-4">
+        <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
+        Please read the important instructions below carefully
+      </p>
+    </div>
+  
     <div class="space-y-4">
+      <!-- Add stars quantity section -->
+      <div>
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">stars</span>
+          Stars to Purchase:
+        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-white break-all flex-1" id="starsQuantity">50 Stars</p>
+        </div>
+      </div>
+
+      <!-- Network section -->
+      <div>
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">network_ping</span>
+          Network:
+        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-white break-all flex-1">TON (The Open Network)</p>
+        </div>
+      </div>
+
+      <!-- Payment amount section -->
+      <div>
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">payments</span>
+          Amount to Pay:
+        </p>
+        <div class="flex items-center gap-2">
+          <p class="text-white break-all flex-1" id="paymentAmount">0.13 TON</p>
+        </div>
+      </div>
+      
+      <!-- Wallet address section -->
       <div>
         <p class="text-gray-400 flex items-center gap-2 mb-2">
           <span class="material-icons">account_balance_wallet</span>
@@ -474,11 +668,13 @@ body {
         </p>
         <div class="flex items-center gap-2">
           <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
-          <button class="copy-button" onclick="copyToClipboard('tonAddress')">
+          <button class="copy-button" onclick="copyToClipboard(&apos;tonAddress&apos;)">
             <span class="material-icons text-gray-300">content_copy</span>
           </button>
         </div>
       </div>
+
+      <!-- Order ID section -->
       <div>
         <p class="text-gray-400 flex items-center gap-2 mb-2">
           <span class="material-icons">tag</span>
@@ -486,17 +682,12 @@ body {
         </p>
         <div class="flex items-center gap-2">
           <p class="text-white break-all flex-1" id="orderId"></p>
-          <button class="copy-button" onclick="copyToClipboard('orderId')">
+          <button class="copy-button" onclick="copyToClipboard(&apos;orderId&apos;)">
             <span class="material-icons text-gray-300">content_copy</span>
           </button>
         </div>
       </div>
-      <div class="mt-4">
-        <p class="text-sm text-golden-accent flex items-center gap-2">
-          <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
-          Please read the important instructions below carefully
-        </p>
-      </div>
+
       <a href="#" id="openWalletButton" class="wallet-button">
         <span class="material-icons">account_balance_wallet</span>
         Send via TON Keeper
@@ -505,39 +696,37 @@ body {
         <span class="material-icons">arrow_back</span>
         Back to Purchase
       </button>
+      <div class="warning-section mt-4">
+        <div class="warning-title">
+          <span class="material-icons">warning</span>
+          Important Instructions
+        </div>
+        <ul class="warning-list">
+          <li>
+            <span class="material-icons">priority_high</span>
+            <span>You MUST send the EXACT amount shown above. Nothing more, nothing less!</span>
+          </li>
+          <li>
+            <span class="material-icons">comment</span>
+            <span>Don&apos;t forget to include your Order ID and Telegram username as a comment in your transaction.</span>
+          </li>
+          <li>
+            <span class="material-icons">content_copy</span>
+            <span>Tap the wallet address to copy it. Sending to an incorrect address will result in permanent loss of funds.</span>
+          </li>
+          <li>
+            <span class="material-icons">support_agent</span>
+            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
   
-  <div class="warning-section">
-    <div class="warning-title">
-      <span class="material-icons">warning</span>
-      Important Instructions
-    </div>
-    <ul class="warning-list">
-      <li>
-        <span class="material-icons">priority_high</span>
-        <span>You MUST send the EXACT amount shown above. Nothing more, nothing less!</span>
-      </li>
-      <li>
-        <span class="material-icons">comment</span>
-        <span>Don't forget to include your Order ID and Telegram username as a comment in your transaction.</span>
-      </li>
-      <li>
-        <span class="material-icons">content_copy</span>
-        <span>Tap the wallet address to copy it. Sending to an incorrect address will result in permanent loss of funds.</span>
-      </li>
-      <li>
-        <span class="material-icons">support_agent</span>
-        <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
-      </li>
-    </ul>
+  <div id="toastNotification" class="toast-notification">
+    <span class="material-icons">check_circle</span>
+    <span id="toastMessage"></span>
   </div>
-</div>
-
-<div id="toastNotification" class="toast-notification">
-  <span class="material-icons">check_circle</span>
-  <span id="toastMessage"></span>
-</div>
 
 <script>function createStarfield() {
   const starfield = document.getElementById('starfield');
@@ -564,7 +753,12 @@ const tonAddress = document.getElementById('tonAddress');
 let currentStars = 50;
 function updateDisplay() {
   starsDisplay.textContent = currentStars;
-  totalPrice.textContent = calculatePrice(currentStars) + ' TON';
+  if (currentStars >= 500) {
+    const originalPrice = (Math.ceil(currentStars / 50) * 0.13).toFixed(2);
+    totalPrice.innerHTML = `<span class="price-strike">${originalPrice} TON</span>${calculatePrice(currentStars)} TON`;
+  } else {
+    totalPrice.textContent = calculatePrice(currentStars) + ' TON';
+  }
 }
 function generateOrderId() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -575,7 +769,11 @@ function generateOrderId() {
   return result;
 }
 function calculatePrice(stars) {
-  return (Math.ceil(stars / 50) * 0.13).toFixed(2);
+  let basePrice = Math.ceil(stars / 50) * 0.13;
+  if (stars >= 500) {
+    basePrice = basePrice * 0.7;
+  }
+  return basePrice.toFixed(2);
 }
 function copyToClipboard(elementId) {
   const text = document.getElementById(elementId).textContent;
@@ -587,6 +785,8 @@ function copyToClipboard(elementId) {
       message = 'Wallet address copied to clipboard';
     } else if (elementId === 'orderId') {
       message = 'Order ID copied to clipboard';
+    } else if (elementId === 'paymentAmount') {
+      message = 'Payment amount copied to clipboard';
     }
     toastMessage.textContent = message;
     toast.classList.add('show');
@@ -606,6 +806,8 @@ function updateWalletLink() {
 function openModal() {
   document.querySelector('.glass-card').classList.add('hidden');
   modal.style.display = 'block';
+  document.getElementById('paymentAmount').textContent = calculatePrice(currentStars) + ' TON';
+  document.getElementById('starsQuantity').textContent = currentStars + ' Stars';
 }
 function closeModal() {
   modal.style.display = 'none';
@@ -656,8 +858,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setTimeout(() => {
       loadingOverlay.style.display = 'none';
     }, 300);
-  }, 2500);
+  }, 4000);
 });
-document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";
-</script>
-</body></html>
+document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";</script>
+</div></body></html>

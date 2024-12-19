@@ -557,6 +557,7 @@ body {
 
 .invoice-timer {
   margin-top: 16px;
+  margin-bottom: 32px;
   padding: 12px;
   background: rgba(218, 165, 32, 0.1);
   border: 1px solid rgba(218, 165, 32, 0.3);
@@ -585,6 +586,11 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 0.9em;
+}
+
+#paymentModal h3 {
+  margin-top: -8px;
+  margin-bottom: 24px;
 }
 </style>
 </head>
@@ -660,7 +666,7 @@ body {
   
   <!-- Payment details section (formerly modal) -->
   <div id="paymentModal" class="glass-card" style="display: none;">
-    <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+    <h3 class="text-white font-bold flex items-center gap-2">
       <span class="material-icons">receipt_long</span>
       Payment Details
     </h3>
@@ -717,7 +723,7 @@ body {
         </p>
         <div class="flex items-center gap-2">
           <div class="copy-wrapper">
-            <p class="text-white break-all flex-1" id="tonAddress">UQAV7UvOjM6o2rbU54To9V3GgmFUujbvCczOKB_nYFJwl9CS</p>
+            <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
             <button class="copy-button" onclick="copyToClipboard(&apos;tonAddress&apos;)">
               <span class="material-icons text-gray-300">content_copy</span>
             </button>
@@ -777,7 +783,7 @@ body {
           </li>
           <li>
             <span class="material-icons">support_agent</span>
-            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. In case of any issues, contact our support team.</span>
+            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
           </li>
         </ul>
       </div>

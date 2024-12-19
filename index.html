@@ -330,6 +330,10 @@ body {
   margin-top: 3px;
 }
 
+.warning-list li:nth-child(2) span:last-child {
+  content: "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";
+}
+
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -344,6 +348,14 @@ body {
   z-index: 9999;
   color: goldenrod;
   gap: 16px;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+
+.loading-progress {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .loading-text {
@@ -352,9 +364,20 @@ body {
   animation: glow 2s ease-in-out infinite;
 }
 
+.loading-dots {
+  color: goldenrod;
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: '.'; }
+  40%, 60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
 .toast-notification {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255, 255, 255, 0.1);
@@ -380,7 +403,10 @@ body {
 <body>
 <div id="loadingOverlay" class="loading-overlay">
   <span class="material-icons animate-pulse" style="font-size: 48px;">star_rate</span>
-  <div class="loading-text">Loading Stars...</div>
+  <div class="loading-progress">
+    <div class="loading-text">Loading Stars</div>
+    <div class="loading-dots">...</div>
+  </div>
 </div>
 <div id="starfield"></div>
 <div class="noise"></div>
@@ -465,9 +491,15 @@ body {
           </button>
         </div>
       </div>
+      <div class="mt-4">
+        <p class="text-sm text-golden-accent flex items-center gap-2">
+          <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
+          Please read the important instructions below carefully
+        </p>
+      </div>
       <a href="#" id="openWalletButton" class="wallet-button">
         <span class="material-icons">account_balance_wallet</span>
-        Open in TON Wallet
+        Send via TON Keeper
       </a>
       <button class="wallet-button back-button" onclick="closeModal()" style="margin-top: 8px; background: rgba(255, 255, 255, 0.1);">
         <span class="material-icons">arrow_back</span>
@@ -488,7 +520,7 @@ body {
       </li>
       <li>
         <span class="material-icons">comment</span>
-        <span>Don&apos;t forget to include the Order ID as a comment in your transaction.</span>
+        <span>Don't forget to include your Order ID and Telegram username as a comment in your transaction.</span>
       </li>
       <li>
         <span class="material-icons">content_copy</span>
@@ -496,7 +528,7 @@ body {
       </li>
       <li>
         <span class="material-icons">support_agent</span>
-        <span>After completing the transaction, please share a screenshot with @Starshopsupport. For any issues, contact our support team.</span>
+        <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
       </li>
     </ul>
   </div>
@@ -535,7 +567,12 @@ function updateDisplay() {
   totalPrice.textContent = calculatePrice(currentStars) + ' TON';
 }
 function generateOrderId() {
-  return 'ORDER-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 12; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
 function calculatePrice(stars) {
   return (Math.ceil(stars / 50) * 0.13).toFixed(2);
@@ -543,21 +580,16 @@ function calculatePrice(stars) {
 function copyToClipboard(elementId) {
   const text = document.getElementById(elementId).textContent;
   navigator.clipboard.writeText(text).then(() => {
-    // Show toast notification
     const toast = document.getElementById('toastNotification');
     const toastMessage = document.getElementById('toastMessage');
-    
     let message = '';
     if (elementId === 'tonAddress') {
       message = 'Wallet address copied to clipboard';
     } else if (elementId === 'orderId') {
       message = 'Order ID copied to clipboard';
     }
-    
     toastMessage.textContent = message;
     toast.classList.add('show');
-    
-    // Hide toast after 3 seconds
     setTimeout(() => {
       toast.classList.remove('show');
     }, 3000);
@@ -567,8 +599,9 @@ function updateWalletLink() {
   const amount = calculatePrice(currentStars);
   const address = tonAddress.textContent;
   const memo = orderId.textContent;
-  const tonDeepLink = `ton://transfer/${address}?amount=${Math.floor(amount * 1000000000)}&text=${encodeURIComponent(memo)}`;
-  openWalletButton.href = tonDeepLink;
+  const nanocoins = Math.floor(amount * 1000000000);
+  const tonkeeperLink = `https://app.tonkeeper.com/transfer/${address}?amount=${nanocoins}`;
+  openWalletButton.href = tonkeeperLink;
 }
 function openModal() {
   document.querySelector('.glass-card').classList.add('hidden');
@@ -616,10 +649,15 @@ purchaseBtn.addEventListener('click', function () {
   updateWalletLink();
   openModal();
 });
-document.addEventListener('DOMContentLoaded', function() {
-  // Hide loading overlay when page is loaded
+document.addEventListener('DOMContentLoaded', function () {
   const loadingOverlay = document.getElementById('loadingOverlay');
-  loadingOverlay.style.display = 'none';
+  setTimeout(() => {
+    loadingOverlay.style.opacity = '0';
+    setTimeout(() => {
+      loadingOverlay.style.display = 'none';
+    }, 300);
+  }, 2500);
 });
+document.querySelector('.warning-list li:nth-child(2) span:last-child').textContent = "Don't forget to include your Order ID and Telegram username as a comment in your transaction.";
 </script>
 </body></html>

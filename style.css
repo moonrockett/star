@@ -325,4 +325,124 @@ body {
 
 .toast-notification.show {
   opacity: 1;
+}
+
+/* Add these new styles */
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #ccc;
+    margin-bottom: 0.25rem;
+}
+
+.accent-text {
+    font-size: 0.875rem;
+    color: goldenrod;
+}
+
+.container {
+    max-width: 28rem;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Add styles for the withdrawal section */
+.withdrawal-section {
+    background: rgba(218, 165, 32, 0.1);
+    border: 1px solid rgba(218, 165, 32, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+}
+
+.withdrawal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    margin-bottom: 16px;
+}
+
+.progress-bar {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.withdrawal-info {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+/* Add styles for the copy wrapper */
+.copy-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.copy-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Add spacing for sections */
+#buySection, #earnSection {
+    min-height: 400px;
+}
+
+/* Add margin utilities */
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-8 { margin-top: 2rem; }
+
+/* Add flex utilities */
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-2 {
+    gap: 0.5rem;
 } 

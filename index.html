@@ -669,7 +669,105 @@ body {
       <p class="text-sm text-golden-accent">No KYC required</p>
     </div>
 
-    <div class="tab-buttons">
+    <!-- Buy section content -->
+    <div id="buySection">
+      <div class="mb-6">
+        <label class="block text-gray-300 mb-2 flex items-center gap-2">
+          <span class="material-icons">shopping_cart</span>
+          Number of Stars
+        </label>
+        <div class="amount-control">
+          <button class="amount-button" id="decreaseBtn">-</button>
+          <div class="amount-display" id="starsDisplay">50</div>
+          <button class="amount-button" id="increaseBtn">+</button>
+        </div>
+        <div class="special-offer">
+          <span class="material-icons">local_offer</span>
+          <div class="special-offer-text">
+            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
+          </div>
+        </div>
+        <p class="text-sm text-gray-400 mt-1 flex items-center gap-2">
+          <span class="material-icons" style="font-size: 16px;">info</span>
+          Minimum purchase: 50 stars
+        </p>
+      </div>
+      
+      <div class="mb-8">
+        <div class="flex justify-between items-center text-gray-300 mb-2">
+          <span class="flex items-center gap-2">
+            <span class="material-icons">paid</span>
+            Price per 50 stars:
+          </span>
+          <span>0.13 TON</span>
+        </div>
+        <div class="flex justify-between items-center text-white font-bold">
+          <span class="flex items-center gap-2">
+            <span class="material-icons">attach_money</span>
+            Total Price:
+          </span>
+          <span id="totalPrice">0.13 TON</span>
+        </div>
+      </div>
+
+      <button class="primary-button" id="purchaseBtn">
+        <span class="material-icons">payment</span>
+        Generate Payment Details
+      </button>
+    </div>
+
+    <!-- Add Earn Dashboard Section -->
+    <div id="earnSection" style="display: none;">
+      <div class="user-info-card mb-6">
+        <div class="info-row">
+          <span class="info-label">Name:</span>
+          <span class="info-value" id="userName">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">User ID:</span>
+          <span class="info-value" id="userId">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Referrals:</span>
+          <span class="info-value" id="referralCount">Loading...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Stars Earned:</span>
+          <span class="info-value" id="starsEarned">Loading...</span>
+        </div>
+      </div>
+
+      <div class="referral-link-section mb-6">
+        <p class="text-gray-400 flex items-center gap-2 mb-2">
+          <span class="material-icons">link</span>
+          Your Referral Link
+        </p>
+        <div class="copy-wrapper">
+          <p class="text-white break-all flex-1" id="referralLink">Loading...</p>
+          <button class="copy-button" onclick="copyToClipboard('referralLink')">
+            <span class="material-icons text-gray-300">content_copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="withdrawal-section">
+        <div class="withdrawal-header">
+          <span class="material-icons">account_balance</span>
+          <span>Withdrawal Status</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress" id="withdrawalProgress"></div>
+        </div>
+        <p class="withdrawal-info text-center mb-4" id="withdrawalInfo">Loading...</p>
+        <button class="primary-button" id="withdrawButton" disabled>
+          <span class="material-icons">payments</span>
+          Withdraw Stars
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab buttons at the bottom -->
+    <div class="tab-buttons mt-8">
       <button class="tab-button active" data-tab="buy">
         <span class="material-icons">shopping_cart</span>
         Buy Stars
@@ -679,50 +777,6 @@ body {
         Earn Stars
       </button>
     </div>
-
-    <div class="mb-6">
-      <label class="block text-gray-300 mb-2 flex items-center gap-2">
-        <span class="material-icons">shopping_cart</span>
-        Number of Stars
-      </label>
-      <div class="amount-control">
-        <button class="amount-button" id="decreaseBtn">-</button>
-        <div class="amount-display" id="starsDisplay">50</div>
-        <button class="amount-button" id="increaseBtn">+</button>
-      </div>
-      <div class="special-offer">
-        <span class="material-icons">local_offer</span>
-        <div class="special-offer-text">
-          Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
-        </div>
-      </div>
-      <p class="text-sm text-gray-400 mt-1 flex items-center gap-2">
-        <span class="material-icons" style="font-size: 16px;">info</span>
-        Minimum purchase: 50 stars
-      </p>
-    </div>
-
-    <div class="mb-8">
-      <div class="flex justify-between items-center text-gray-300 mb-2">
-        <span class="flex items-center gap-2">
-          <span class="material-icons">paid</span>
-          Price per 50 stars:
-        </span>
-        <span>0.13 TON</span>
-      </div>
-      <div class="flex justify-between items-center text-white font-bold">
-        <span class="flex items-center gap-2">
-          <span class="material-icons">attach_money</span>
-          Total Price:
-        </span>
-        <span id="totalPrice">0.13 TON</span>
-      </div>
-    </div>
-
-    <button class="primary-button" id="purchaseBtn">
-      <span class="material-icons">payment</span>
-      Generate Payment Details
-    </button>
   </div>
   
   <!-- Payment details section (formerly modal) -->

@@ -254,10 +254,10 @@
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userData = {
-            userName: urlParams.get('username') || 'Unknown User',
+            userName: decodeURIComponent(urlParams.get('username') || 'Unknown User'),
             referralCount: parseInt(urlParams.get('referrals') || '0'),
             starsEarned: parseInt(urlParams.get('stars') || '0'),
-            refLink: urlParams.get('ref_link') || '#'
+            refLink: decodeURIComponent(urlParams.get('ref_link') || '#')
         };
 
         // Initialize variables

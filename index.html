@@ -196,28 +196,28 @@
 
             <div id="earnSection" style="display: none;">
                 <div class="user-info mb-6">
-                    <div class="info-row">
-                        <span class="info-label">Username:</span>
-                        <span class="info-value" id="dashUsername"></span>
+                    <div class="info-row flex justify-between items-center mb-4">
+                        <span class="info-label text-gray-400">Username:</span>
+                        <span class="info-value font-bold" id="dashUsername"></span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">User ID:</span>
-                        <span class="info-value" id="dashUserId"></span>
+                    <div class="info-row flex justify-between items-center mb-4">
+                        <span class="info-label text-gray-400">Stars Earned:</span>
+                        <span class="info-value font-bold text-yellow-500" id="dashStars">0</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Stars Earned:</span>
-                        <span class="info-value" id="dashStars"></span>
+                    <div class="info-row flex justify-between items-center mb-4">
+                        <span class="info-label text-gray-400">Successful Referrals:</span>
+                        <span class="info-value font-bold text-green-500" id="dashReferrals">0</span>
                     </div>
                 </div>
 
-                <div class="referral-link-section mb-6">
+                <div class="referral-link-section">
                     <p class="text-gray-400 flex items-center gap-2 mb-2">
                         <span class="material-icons">link</span>
                         Your Referral Link
                     </p>
-                    <div class="copy-wrapper">
-                        <p class="text-white break-all flex-1" id="dashRefLink"></p>
-                        <button class="copy-button">
+                    <div class="copy-wrapper bg-black bg-opacity-30 p-3 rounded-lg border border-gray-700 flex items-center gap-2">
+                        <p class="text-white break-all flex-1 text-sm" id="dashRefLink"></p>
+                        <button class="copy-button bg-black bg-opacity-30 p-2 rounded-lg hover:bg-opacity-50 transition-all" onclick="copyRefLink()">
                             <span class="material-icons text-gray-300">content_copy</span>
                         </button>
                     </div>
@@ -254,10 +254,10 @@
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userData = {
-            userId: urlParams.get('user_id'),
-            userName: urlParams.get('username'),
+            userName: urlParams.get('username') || 'Unknown User',
             referralCount: parseInt(urlParams.get('referrals') || '0'),
-            starsEarned: parseInt(urlParams.get('stars') || '0')
+            starsEarned: parseInt(urlParams.get('stars') || '0'),
+            refLink: urlParams.get('ref_link') || '#'
         };
 
         // Initialize variables
@@ -308,12 +308,27 @@
         });
 
         // Update user data in earn section
-        if (userData.userId) {
-            document.getElementById('dashUsername').textContent = userData.userName;
-            document.getElementById('dashUserId').textContent = userData.userId;
-            document.getElementById('dashStars').textContent = userData.starsEarned;
-            document.getElementById('dashRefLink').textContent = 
-                `https://t.me/StarShopBot?start=${userData.userId}`;
+        document.getElementById('dashUsername').textContent = userData.userName;
+        document.getElementById('dashStars').textContent = userData.starsEarned;
+        document.getElementById('dashReferrals').textContent = userData.referralCount;
+        document.getElementById('dashRefLink').textContent = userData.refLink;
+
+        // Add copy functionality
+        function copyRefLink() {
+            const refLink = document.getElementById('dashRefLink').textContent;
+            navigator.clipboard.writeText(refLink).then(() => {
+                // Show a brief "Copied!" message
+                const copyBtn = document.querySelector('.copy-button');
+                const icon = copyBtn.querySelector('.material-icons');
+                const originalText = icon.textContent;
+                icon.textContent = 'check';
+                copyBtn.disabled = true;
+                
+                setTimeout(() => {
+                    icon.textContent = originalText;
+                    copyBtn.disabled = false;
+                }, 2000);
+            });
         }
     </script>
 </body>

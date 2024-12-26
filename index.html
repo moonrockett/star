@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Star Shop</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="styles.css" rel="stylesheet">
 </head>
 <body>
@@ -24,15 +22,15 @@
     <div id="starfield"></div>
     <div class="noise"></div>
 
-    <div class="container mx-auto px-4 py-8 max-w-md">
+    <div class="container">
         <div class="glass-card">
-            <div class="text-center mb-8">
+            <div class="header">
                 <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
                     <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
                 </svg>
-                <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
-                <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
-                <p class="text-sm text-golden-accent">No KYC required</p>
+                <h1>The Star Shop</h1>
+                <p class="subtitle">Purchase Telegram stars using TON</p>
+                <p class="accent-text">No KYC required</p>
             </div>
 
             <!-- Buy section -->
@@ -156,8 +154,5 @@
             <span id="toastMessage"></span>
         </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="app.js"></script>
 </body>
 </html>

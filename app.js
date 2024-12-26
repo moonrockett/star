@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         referralLink: urlParams.get('ref_link')
     };
 
-    // Initialize UI
+    // Initialize UI components
     initializeTabs();
     initializeBuySection();
     initializeEarnDashboard(userData);
@@ -19,27 +19,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Tab Navigation
 function initializeTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
     const buySection = document.getElementById('buySection');
     const earnSection = document.getElementById('earnSection');
+    const buyButton = document.querySelector('[data-tab="buy"]');
+    const earnButton = document.querySelector('[data-tab="earn"]');
 
-    tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tab = button.dataset.tab;
-            
-            // Update active states
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+    // Set initial state
+    buySection.style.display = 'block';
+    earnSection.style.display = 'none';
+    buyButton.classList.add('active');
+    earnButton.classList.remove('active');
 
-            // Show/hide appropriate sections
-            if (tab === 'buy') {
-                buySection.style.display = 'block';
-                earnSection.style.display = 'none';
-            } else {
-                buySection.style.display = 'none';
-                earnSection.style.display = 'block';
-            }
-        });
+    // Buy tab click handler
+    buyButton.addEventListener('click', () => {
+        buySection.style.display = 'block';
+        earnSection.style.display = 'none';
+        buyButton.classList.add('active');
+        earnButton.classList.remove('active');
+    });
+
+    // Earn tab click handler
+    earnButton.addEventListener('click', () => {
+        buySection.style.display = 'none';
+        earnSection.style.display = 'block';
+        earnButton.classList.add('active');
+        buyButton.classList.remove('active');
     });
 }
 

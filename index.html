@@ -4,7 +4,7 @@
 <title>The Star Shop</title>
 
 <link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
-<link hraef="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
@@ -585,63 +585,62 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 0.9em;
 }
 
-.button-group {
+#paymentModal h3 {
+  margin-top: -8px;
+  margin-bottom: 24px;
+}
+
+.tab-buttons {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
+  padding: 0 12px;
 }
 
 .tab-button {
   flex: 1;
-  background: rgba(218, 165, 32, 0.1);
-  border: 2px solid rgba(218, 165, 32, 0.2);
-  border-radius: 12px;
   padding: 12px;
-  color: goldenrod;
-  font-weight: bold;
+  background: rgba(218, 165, 32, 0.1);
+  border: 1px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
 
 .tab-button.active {
   background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
-  color: white;
+  border-color: transparent;
 }
 
-.dashboard-section {
-  margin-top: 24px;
-}
-
-.stats-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 16px;
-  background: rgba(0,0,0,0.3);
+.user-info-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
+  padding: 16px;
 }
 
-.stats-icon {
-  color: goldenrod;
-  font-size: 24px;
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 8px 0;
 }
 
-.stats-content {
-  flex: 1;
-}
-
-.stats-label {
-  color: #999;
-  font-size: 0.9em;
-  margin-bottom: 4px;
-}
-
-.stats-value {
-  color: white;
+.info-label {
   font-weight: bold;
+}
+
+.info-value {
+  color: goldenrod;
+  opacity: 0.8;
 }
 </style>
 </head>
@@ -660,11 +659,6 @@ body {
 <div class="noise"></div>
 
 <div class="container mx-auto px-4 py-8 max-w-md">
-  <div class="button-group">
-    <button class="tab-button active" id="buyTab">Buy Stars</button>
-    <button class="tab-button" id="earnTab">Earn Stars</button>
-  </div>
-
   <div class="glass-card">
     <div class="text-center mb-8">
       <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
@@ -673,6 +667,17 @@ body {
       <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
       <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
       <p class="text-sm text-golden-accent">No KYC required</p>
+    </div>
+
+    <div class="tab-buttons">
+      <button class="tab-button active" data-tab="buy">
+        <span class="material-icons">shopping_cart</span>
+        Buy Stars
+      </button>
+      <button class="tab-button" data-tab="earn">
+        <span class="material-icons">group</span>
+        Earn Stars
+      </button>
     </div>
 
     <div class="mb-6">
@@ -720,86 +725,6 @@ body {
     </button>
   </div>
   
-  <div id="dashboardCard" class="glass-card" style="display: none;">
-    <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
-      <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
-    </svg>
-    <h1 class="text-2xl font-bold text-white mb-6">Earn Stars Dashboard</h1>
-    
-    <div class="dashboard-section">
-      <div class="stats-row">
-        <span class="material-icons stats-icon">account_circle</span>
-        <div class="stats-content">
-          <div class="stats-label">Username</div>
-          <div class="stats-value" id="dashUsername">Loading...</div>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <span class="material-icons stats-icon">tag</span>
-        <div class="stats-content">
-          <div class="stats-label">User ID</div>
-          <div class="stats-value" id="dashUserId">Loading...</div>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <span class="material-icons stats-icon">group</span>
-        <div class="stats-content">
-          <div class="stats-label">Successful Referrals</div>
-          <div class="stats-value" id="dashReferrals">0</div>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <span class="material-icons stats-icon">star</span>
-        <div class="stats-content">
-          <div class="stats-label">Stars Earned</div>
-          <div class="stats-value" id="dashStars">0</div>
-        </div>
-      </div>
-
-      <div class="stats-row">
-        <span class="material-icons stats-icon">link</span>
-        <div class="stats-content">
-          <div class="stats-label">Your Referral Link</div>
-          <div class="copy-wrapper">
-            <div class="stats-value" id="dashRefLink">Loading...</div>
-            <button class="copy-button" onclick="copyToClipboard('dashRefLink')">
-              <span class="material-icons text-gray-300">content_copy</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="warning-section">
-      <div class="warning-title">
-        <span class="material-icons">info</span>
-        Referral Program Details
-      </div>
-      <ul class="warning-list">
-        <li>
-          <span class="material-icons">star</span>
-          <span>Earn 1 Telegram star for each successful referral</span>
-        </li>
-        <li>
-          <span class="material-icons">paid</span>
-          <span>Get 5% commission from your referrals' first purchase</span>
-        </li>
-        <li>
-          <span class="material-icons">account_balance</span>
-          <span>Minimum withdrawal: 100 Telegram stars</span>
-        </li>
-      </ul>
-    </div>
-
-    <button class="wallet-button" id="withdrawButton" style="margin-top: 24px;">
-      <span class="material-icons">account_balance_wallet</span>
-      Withdraw Stars
-    </button>
-  </div>
-
   <!-- Payment details section (formerly modal) -->
   <div id="paymentModal" class="glass-card" style="display: none;">
     <h3 class="text-white font-bold flex items-center gap-2">
@@ -859,7 +784,7 @@ body {
         </p>
         <div class="flex items-center gap-2">
           <div class="copy-wrapper">
-            <p class="text-white break-all flex-1" id="tonAddress">EQD4FPq-QqSLP89I7wqwzqwfNqxzBjf8fL4DyITN6JmWA5nl</p>
+            <p class="text-white break-all flex-1" id="tonAddress">UQAV7UvOjM6o2rbU54To9V3GgmFUujbvCczOKB_nYFJwl9CS</p>
             <button class="copy-button" onclick="copyToClipboard(&apos;tonAddress&apos;)">
               <span class="material-icons text-gray-300">content_copy</span>
             </button>
@@ -931,63 +856,7 @@ body {
     <span id="toastMessage"></span>
   </div>
 
-<script>
-const room = new WebsimSocket();
-let currentTab = 'buy';
-
-// Get references to new elements
-const buyTab = document.getElementById('buyTab');
-const earnTab = document.getElementById('earnTab');
-const mainCard = document.querySelector('.glass-card:not(#dashboardCard)');
-const dashboardCard = document.getElementById('dashboardCard');
-const withdrawButton = document.getElementById('withdrawButton');
-
-function showTab(tab) {
-  currentTab = tab;
-  if (tab === 'buy') {
-    mainCard.style.display = 'block';
-    dashboardCard.style.display = 'none';
-    buyTab.classList.add('active');
-    earnTab.classList.remove('active');
-  } else {
-    mainCard.style.display = 'none';
-    dashboardCard.style.display = 'block';
-    buyTab.classList.remove('active');
-    earnTab.classList.add('active');
-    updateDashboard();
-  }
-}
-
-function updateDashboard() {
-  // Get values from room.party.client
-  const client = room.party.client;
-  document.getElementById('dashUsername').textContent = client.username;
-  document.getElementById('dashUserId').textContent = client.id;
-  
-  // Get referral data from collection
-  room.collection('referrals')
-    .filter({ referrer_id: client.id })
-    .subscribe(referrals => {
-      const count = referrals.length;
-      document.getElementById('dashReferrals').textContent = count;
-      document.getElementById('dashStars').textContent = count; // 1 star per referral
-      
-      // Update withdraw button state
-      if (count >= 100) {
-        withdrawButton.disabled = false;
-        withdrawButton.style.opacity = '1';
-      } else {
-        withdrawButton.disabled = true; 
-        withdrawButton.style.opacity = '0.5';
-      }
-    });
-
-  // Set referral link
-  const refLink = `https://t.me/StarShopBot?start=${client.id}`;
-  document.getElementById('dashRefLink').textContent = refLink;
-}
-
-function createStarfield() {
+<script>function createStarfield() {
   const starfield = document.getElementById('starfield');
   const numberOfStars = 500;
   for (let i = 0; i < numberOfStars; i++) {
@@ -1050,8 +919,6 @@ function copyToClipboard(elementId) {
       message = 'Order ID copied to clipboard';
     } else if (elementId === 'paymentAmount') {
       message = 'Payment amount copied to clipboard';
-    } else if (elementId === 'dashRefLink') {
-      message = 'Referral link copied to clipboard';
     }
     toastMessage.textContent = message;
     toast.classList.add('show');
@@ -1155,19 +1022,5 @@ function updateTimer() {
   document.getElementById('timeRemaining').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
   const progressPercent = remainingTime / INVOICE_VALIDITY * 100;
   document.getElementById('timerProgress').style.width = `${progressPercent}%`;
-}
-
-function generateRandomString(length = 8) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  return Array.from({length}, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
-}
-
-buyTab.addEventListener('click', () => showTab('buy'));
-earnTab.addEventListener('click', () => showTab('earn'));
-
-withdrawButton.addEventListener('click', () => {
-  const withdrawCode = 'WD-' + generateRandomString(8);
-  alert(`Please contact support with code: ${withdrawCode} to process your withdrawal`);
-});
-</script>
+}</script>
 </div></body></html>

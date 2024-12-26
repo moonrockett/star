@@ -8,19 +8,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Add Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Initialize Supabase -->
-    <script>
-        const supabase = supabase.createClient(
-            process.env.SUPABASE_URL,
-            process.env.SUPABASE_KEY
-        );
-    </script>
-    
     <style>
-        /* Keep only essential styles for now */
         body {
             background: linear-gradient(135deg, rgb(0, 0, 0) 0%, rgb(20, 20, 20) 100%);
             min-height: 100vh;
@@ -57,6 +45,91 @@
             margin: 0 auto;
             padding: 1rem;
         }
+
+        .amount-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .amount-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .amount-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .amount-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: goldenrod;
+        }
+
+        .special-offer {
+            background: rgba(218, 165, 32, 0.1);
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid rgba(218, 165, 32, 0.3);
+            border-radius: 12px;
+            background: transparent;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+            border-color: transparent;
+        }
+
+        .primary-button {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -72,15 +145,94 @@
             <div class="text-center mb-8">
                 <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
                 <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
-                <p class="text-sm text-golden-accent">No KYC required</p>
+                <p class="text-sm" style="color: goldenrod;">No KYC required</p>
             </div>
 
             <div id="buySection">
-                <!-- Buy section content -->
+                <div class="section-content">
+                    <label class="flex items-center gap-2 text-gray-300 mb-2">
+                        <span class="material-icons">shopping_cart</span>
+                        Number of Stars
+                    </label>
+                    <div class="amount-control">
+                        <button class="amount-button" id="decreaseBtn">-</button>
+                        <div class="amount-display" id="starsDisplay">50</div>
+                        <button class="amount-button" id="increaseBtn">+</button>
+                    </div>
+                    <div class="special-offer">
+                        <span class="material-icons" style="color: goldenrod;">local_offer</span>
+                        <div>
+                            Get <span style="color: goldenrod; font-weight: bold;">30% OFF</span> on orders over 500 Stars!
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-400 flex items-center gap-2">
+                        <span class="material-icons" style="font-size: 16px;">info</span>
+                        Minimum purchase: 50 stars
+                    </p>
+                </div>
+
+                <div class="mt-8">
+                    <div class="flex justify-between items-center text-gray-300 mb-2">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons">paid</span>
+                            Price per 50 stars:
+                        </span>
+                        <span>0.13 TON</span>
+                    </div>
+                    <div class="flex justify-between items-center text-white font-bold">
+                        <span class="flex items-center gap-2">
+                            <span class="material-icons">attach_money</span>
+                            Total Price:
+                        </span>
+                        <span id="totalPrice">0.13 TON</span>
+                    </div>
+                </div>
+
+                <button class="primary-button" id="purchaseBtn">
+                    <span class="material-icons">payment</span>
+                    Generate Payment Details
+                </button>
             </div>
 
             <div id="earnSection" style="display: none;">
-                <!-- Earn section content -->
+                <div class="user-info mb-6">
+                    <div class="info-row">
+                        <span class="info-label">Username:</span>
+                        <span class="info-value" id="dashUsername"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">User ID:</span>
+                        <span class="info-value" id="dashUserId"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Stars Earned:</span>
+                        <span class="info-value" id="dashStars"></span>
+                    </div>
+                </div>
+
+                <div class="referral-link-section mb-6">
+                    <p class="text-gray-400 flex items-center gap-2 mb-2">
+                        <span class="material-icons">link</span>
+                        Your Referral Link
+                    </p>
+                    <div class="copy-wrapper">
+                        <p class="text-white break-all flex-1" id="dashRefLink"></p>
+                        <button class="copy-button">
+                            <span class="material-icons text-gray-300">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-buttons">
+                <button class="tab-button active" data-tab="buy">
+                    <span class="material-icons">shopping_cart</span>
+                    Buy Stars
+                </button>
+                <button class="tab-button" data-tab="earn">
+                    <span class="material-icons">group</span>
+                    Earn Stars
+                </button>
             </div>
         </div>
     </div>
@@ -96,7 +248,7 @@
                         loadingOverlay.style.display = 'none';
                     }, 300);
                 }
-            }, 1000); // Show loading for 1 second
+            }, 1000);
         });
 
         // Parse URL parameters
@@ -108,15 +260,60 @@
             starsEarned: parseInt(urlParams.get('stars') || '0')
         };
 
-        // Update UI with user data
+        // Initialize variables
+        let currentStars = 50;
+
+        // Update display functions
+        function updateDisplay() {
+            document.getElementById('starsDisplay').textContent = currentStars;
+            const price = (currentStars >= 500) 
+                ? (currentStars * 0.0026 * 0.7).toFixed(2) 
+                : (currentStars * 0.0026).toFixed(2);
+            document.getElementById('totalPrice').textContent = price + ' TON';
+        }
+
+        // Add event listeners
+        document.getElementById('increaseBtn').addEventListener('click', () => {
+            currentStars += 50;
+            updateDisplay();
+        });
+
+        document.getElementById('decreaseBtn').addEventListener('click', () => {
+            if (currentStars > 50) {
+                currentStars -= 50;
+                updateDisplay();
+            }
+        });
+
+        // Tab switching
+        const buySection = document.getElementById('buySection');
+        const earnSection = document.getElementById('earnSection');
+        const tabButtons = document.querySelectorAll('.tab-button');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.dataset.tab;
+                
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                if (tab === 'buy') {
+                    buySection.style.display = 'block';
+                    earnSection.style.display = 'none';
+                } else {
+                    buySection.style.display = 'none';
+                    earnSection.style.display = 'block';
+                }
+            });
+        });
+
+        // Update user data in earn section
         if (userData.userId) {
-            document.getElementById('buySection').innerHTML = `
-                <div class="text-center">
-                    <p class="mb-4">Welcome, ${userData.userName}!</p>
-                    <p class="mb-2">Your Stars: ${userData.starsEarned}</p>
-                    <p>Referrals: ${userData.referralCount}</p>
-                </div>
-            `;
+            document.getElementById('dashUsername').textContent = userData.userName;
+            document.getElementById('dashUserId').textContent = userData.userId;
+            document.getElementById('dashStars').textContent = userData.starsEarned;
+            document.getElementById('dashRefLink').textContent = 
+                `https://t.me/StarShopBot?start=${userData.userId}`;
         }
     </script>
 </body>

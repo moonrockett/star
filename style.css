@@ -1,0 +1,206 @@
+/* Base styles */
+:root {
+  --background: 0 0% 0%;
+  --foreground: 45 100% 50%;
+  --card: 0 0% 0%;
+  --card-foreground: 45 100% 50%;
+  --primary: 45 100% 50%;
+  --accent: 45 30% 20%;
+  --border: 45 30% 20%;
+}
+
+/* Layout */
+body {
+  background: linear-gradient(135deg, rgb(0, 0, 0) 0%, rgb(20, 20, 20) 100%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  overscroll-behavior-y: contain;
+  display: flex;
+  flex-direction: column;
+  position: fixed; 
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  padding-top: 48px;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+
+/* Card Styles */
+.glass-card {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 64px 24px 24px;
+  border: 1px solid rgba(218, 165, 32, 0.15);
+  position: relative;
+  overflow: visible;
+  margin-bottom: 24px;
+}
+
+/* Tab Navigation */
+.tab-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 0 12px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 12px;
+  background: rgba(218, 165, 32, 0.1);
+  border: 1px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+  border-color: transparent;
+}
+
+/* Buy Section Styles */
+.amount-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.amount-button {
+  background: rgba(218, 165, 32, 0.1);
+  border: 2px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: goldenrod;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.amount-display {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  color: goldenrod;
+  flex: 1;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* Earn Dashboard Styles */
+.earn-dashboard {
+  display: none;
+}
+
+.user-info-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #999;
+}
+
+.info-value {
+  color: goldenrod;
+  font-weight: 500;
+}
+
+/* Withdrawal Section */
+.withdrawal-section {
+  background: rgba(218, 165, 32, 0.1);
+  border: 1px solid rgba(218, 165, 32, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.withdrawal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+/* Buttons and Interactive Elements */
+.primary-button {
+  background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+  color: white;
+  border: none;
+  padding: 16px 28px;
+  border-radius: 12px;
+  width: 100%;
+  font-weight: 600;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.primary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+} 

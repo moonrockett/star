@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Tab Navigation
 function initializeTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
-    const buyCard = document.querySelector('.glass-card:not(.earn-dashboard)');
-    const earnCard = document.querySelector('.earn-dashboard');
+    const buySection = document.getElementById('buySection');
+    const earnSection = document.getElementById('earnSection');
 
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -33,11 +33,11 @@ function initializeTabs() {
 
             // Show/hide appropriate sections
             if (tab === 'buy') {
-                buyCard.style.display = 'block';
-                earnCard.style.display = 'none';
+                buySection.style.display = 'block';
+                earnSection.style.display = 'none';
             } else {
-                buyCard.style.display = 'none';
-                earnCard.style.display = 'block';
+                buySection.style.display = 'none';
+                earnSection.style.display = 'block';
             }
         });
     });

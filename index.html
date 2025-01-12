@@ -673,23 +673,9 @@
             // Create TON deep link with address, amount and comment
             const tonDeepLink = `ton://transfer/${address}?amount=${nanotons}&text=${encodeURIComponent(memo)}`;
             
-            // Update the wallet button href and add click handler
+            // Simply update the href - Telegram will handle the external app opening
             const walletButton = document.getElementById('openWalletButton');
             walletButton.href = tonDeepLink;
-            
-            // Add click handler to handle mobile deep linking
-            walletButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Try to open the TON wallet app
-                window.location.href = tonDeepLink;
-                
-                // Fallback for desktop or if wallet app is not installed
-                setTimeout(() => {
-                    // If wallet didn't open after 1 second, open in new tab
-                    window.open(tonDeepLink, '_blank');
-                }, 1000);
-            });
         }
 
         function copyToClipboard(elementId) {

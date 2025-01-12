@@ -489,7 +489,7 @@
                     </div>
                 </div>
 
-                <a href="#" id="openWalletButton" class="wallet-button" target="_blank" rel="noopener noreferrer">
+                <a id="openWalletButton" class="wallet-button" target="_blank" rel="noopener">
                     <span class="material-icons">account_balance_wallet</span>
                     Send via TON Wallet
                 </a>
@@ -670,12 +670,19 @@
             // Convert TON amount to nanotons (1 TON = 1,000,000,000 nanotons)
             const nanotons = Math.floor(amount * 1000000000);
             
-            // Create TON deep link with address, amount and comment
+            // Create TON deep link according to protocol
             const tonDeepLink = `ton://transfer/${address}?amount=${nanotons}&text=${encodeURIComponent(memo)}`;
             
-            // Simply update the href - Telegram will handle the external app opening
+            // Update the wallet button
             const walletButton = document.getElementById('openWalletButton');
             walletButton.href = tonDeepLink;
+            
+            // Prevent default behavior and handle external link
+            walletButton.onclick = function(e) {
+                e.preventDefault();
+                window.open(tonDeepLink, '_blank');
+                return false;
+            };
         }
 
         function copyToClipboard(elementId) {

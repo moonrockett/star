@@ -87,7 +87,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, rgb(0, 0, 0) 0%, rgb(20, 20, 20) 100%);
+            background: linear-gradient(135deg, rgb(0, 0, 0) 0%, rgb(20, 20, 20) 100%) !important;
             min-height: 100vh;
             margin: 0;
             font-family: system-ui, -apple-system, sans-serif;
@@ -98,6 +98,10 @@
             width: 100%;
             height: 100%;
             color: white;
+        }
+
+        html {
+            background: black;
         }
 
         .noise {
@@ -112,6 +116,7 @@
         }
 
         .container {
+            background: transparent;
             padding-top: 48px;
             height: 100%;
             overflow-y: auto;
@@ -332,6 +337,41 @@
             color: #ff5722;
             margin-top: 3px;
         }
+
+        .star-logo {
+            width: 48px;
+            height: 48px;
+            margin: -24px auto 20px;
+            animation: glow 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(218,165,32,0.5));
+            position: relative;
+        }
+
+        .star-logo path {
+            fill: goldenrod;
+            stroke: none;
+        }
+
+        .star-logo::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: radial-gradient(circle at center, rgba(218,165,32,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            animation: spill 2s ease-in-out infinite;
+        }
+
+        @keyframes spill {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.5); 
+                opacity: 0.8;
+            }
+        }
     </style>
 </head>
 <body>
@@ -351,18 +391,17 @@
 
     <div class="container mx-auto px-4 py-8 max-w-md">
         <div class="glass-card">
-            <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px;">
-                <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
-            </svg>
+            <div class="text-center mb-8">
+                <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
+                </svg>
+                <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
+                <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
+                <p class="text-sm text-golden-accent">No KYC required</p>
+            </div>
 
             <!-- Buy Section -->
             <div id="buySection">
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
-                    <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
-                    <p class="text-sm text-golden-accent">No KYC required</p>
-                </div>
-
                 <div class="section-content">
                     <label class="flex items-center gap-2 text-gray-300 mb-2">
                         <span class="material-icons">shopping_cart</span>

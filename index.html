@@ -9,29 +9,21 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     <script>
-        // Initialize Supabase client with error handling
-        let supabase;
-        try {
-            // Load Supabase only after the script is ready
-            window.addEventListener('load', function() {
-                if (typeof supabaseJs !== 'undefined') {
-            supabase = supabaseJs.createClient(
-                'https://iolupdbwmpjtxhjdgbes.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
-            );
-            console.log('Supabase initialized successfully');
-                    // Initialize user after Supabase is ready
-                    initializeUser();
-                } else {
-                    console.error('Supabase script not loaded');
-                }
-            });
-        } catch (error) {
-            console.error('Error initializing Supabase:', error);
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                supabase = supabaseJs.createClient(
+                    process.env.NEXT_PUBLIC_STARSHOP_SUPABASE_SUPABASE_URL,
+                    process.env.NEXT_PUBLIC_STARSHOP_SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY
+                );
+                console.log('Supabase initialized successfully');
+                initializeUser();
+            } catch (error) {
+                console.error('Error initializing Supabase:', error);
+            }
+        });
     </script>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     
     <style>
         :root {
@@ -608,7 +600,6 @@
     </div>
 
     <div class="container mx-auto px-4 py-8 max-w-md">
-        <!-- Countdown pill moved outside main card -->
         <div class="countdown-pill mb-4">
             <div class="countdown-content">
                 <div class="countdown-text">
@@ -1185,9 +1176,6 @@
             });
         }
 
-        // Call this function when initializing the app
-        populateEarnHistory();
-
         // Update the tasks container generation
         function generateTaskPills() {
             const tasksContainer = document.querySelector('.tasks-container');
@@ -1263,16 +1251,30 @@
                 const formattedMinutes = String(minutes).padStart(2, '0');
                 const formattedSeconds = String(seconds).padStart(2, '0');
                 
-                document.getElementById('countdownDisplay').textContent = 
-                    `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+                const countdownDisplay = document.getElementById('countdownDisplay');
+                if (countdownDisplay) {
+                    document.getElementById('countdownDisplay').textContent = 
+                        `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+                }
             } else {
-                document.getElementById('countdownDisplay').textContent = "LIVE!";
+                const countdownDisplay = document.getElementById('countdownDisplay');
+                if (countdownDisplay) {
+                    document.getElementById('countdownDisplay').textContent = "LIVE!";
+                }
             }
         }
 
-        // Update countdown every second instead of every hour
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
+        // Initialize countdown as soon as possible
+        window.addEventListener('load', function() {
+            updateCountdown();
+            // Update every second
+            setInterval(updateCountdown, 1000);
+        });
+
+        // Also try to start countdown when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCountdown();
+        });
 
         // Add this function to handle task completion
         async function handleTaskCompletion(taskType) {

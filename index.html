@@ -378,6 +378,18 @@
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(8px);
         }
+
+        .price-strike {
+            text-decoration: line-through;
+            color: #666;
+            margin-right: 8px;
+            font-size: 0.9em;
+        }
+
+        .discounted-price {
+            color: #ffd700;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -656,10 +668,21 @@
         // Update display function
         function updateDisplay() {
             document.getElementById('starsDisplay').textContent = currentStars;
-            const price = (currentStars >= 500) 
-                ? (currentStars * 0.0026 * 0.7).toFixed(2) 
-                : (currentStars * 0.0026).toFixed(2);
-            document.getElementById('totalPrice').textContent = price + ' TON';
+            
+            if (currentStars >= 500) {
+                // Calculate original and discounted prices
+                const originalPrice = (currentStars * 0.0026).toFixed(2);
+                const discountedPrice = (currentStars * 0.0026 * 0.7).toFixed(2);
+                
+                // Show both prices with the original crossed out
+                document.getElementById('totalPrice').innerHTML = 
+                    `<span class="price-strike">${originalPrice} TON</span>` +
+                    `<span class="discounted-price">${discountedPrice} TON</span>`;
+            } else {
+                // Regular price display
+                const price = (currentStars * 0.0026).toFixed(2);
+                document.getElementById('totalPrice').textContent = price + ' TON';
+            }
         }
 
         // Add button event listeners

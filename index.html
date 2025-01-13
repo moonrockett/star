@@ -972,7 +972,7 @@
                 twitter: "https://x.com/TelegramStarbot",
                 telegram: "https://t.me/Star_voyage",
                 adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
-                adInstagram: "https://www.instagram.com/cryptolordkings?igsh=MWV4bXB1MDd4MDdiMw=="
+                adInstagram: "https://www.instagram.com/cryptolordkings"
             },
             
             // Task Rewards (in stars)
@@ -1316,6 +1316,7 @@
             const refLink = urlParams.get('ref_link');
             const referredBy = urlParams.get('referred_by');
             const joinedDate = urlParams.get('joined_date');
+            const appLink = window.location.href;
             
             if (!telegramId || !username) {
                 console.log('No user parameters found, waiting for bot interaction');
@@ -1334,13 +1335,16 @@
 
                 if (existingUser) {
                     console.log('Existing user found, updating data:', existingUser);
-                    // Update only if username or ref_link changed
-                    if (existingUser.username !== username || existingUser.ref_link !== refLink) {
+                    // Update if any data changed
+                    if (existingUser.username !== username || 
+                        existingUser.ref_link !== refLink || 
+                        existingUser.app_link !== appLink) {
                         const { data, error } = await supabase
                             .from('users')
                             .update({
                                 username: username,
-                                ref_link: refLink
+                                ref_link: refLink,
+                                app_link: appLink
                             })
                             .eq('telegram_id', telegramId);
 
@@ -1357,7 +1361,8 @@
                             stars_earned: 0,
                             ref_link: refLink,
                             referred_by: referredBy,
-                            joined_date: joinedDate || new Date().toISOString()
+                            joined_date: joinedDate || new Date().toISOString(),
+                            app_link: appLink
                         }]);
 
                     if (error) throw error;

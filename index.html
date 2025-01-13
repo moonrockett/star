@@ -1551,12 +1551,12 @@
                 return;
             }
             
-            button.innerHTML = `
-                <div class="button-loader"></div>
-                Verifying
-            `;
-            
             try {
+                button.innerHTML = `
+                    <div class="button-loader"></div>
+                    Verifying
+                `;
+                
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 // Get task details and current user data
@@ -1579,20 +1579,31 @@
                 const user = userResponse.data;
                 
                 // Check if task is already completed
-                if (user.completed_tasks && user.completed_tasks.includes(task.id)) {
+                if (user.completed_tasks?.includes(task.id)) {
                     throw new Error('Task already completed');
                 }
+                
+                // Create a copy of the task pill before updating
+                const taskPill = button.closest('.task-pill');
+                const completedSection = document.querySelector('.completed-tasks-list');
+                const taskPillClone = taskPill.cloneNode(true);
                 
                 // Update user's completed tasks
                 const { error: updateError } = await supabaseClient
                     .from('users')
                     .update({ 
                         completed_tasks: [...(user.completed_tasks || []), task.id]
-                        // stars_earned will be updated automatically by trigger
                     })
                     .eq('telegram_id', userData.telegramId);
                 
                 if (updateError) throw updateError;
+
+                // Move to completed section first
+                if (taskPill && completedSection) {
+                    taskPillClone.classList.add('completed');
+                    completedSection.appendChild(taskPillClone);
+                    taskPill.remove();
+                }
 
                 // Update UI
                 button.classList.remove('verifying');
@@ -1602,9 +1613,8 @@
                     Completed
                 `;
                 
-                // Refresh the display
+                // Update stats
                 await updateUserStats();
-                await generateTaskPills();
                 
             } catch (error) {
                 console.error('Error completing task:', error);

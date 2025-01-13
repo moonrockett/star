@@ -1578,12 +1578,17 @@
                 const task = taskResponse.data;
                 const user = userResponse.data;
                 
-                // Update user's completed tasks and stars
+                // Check if task is already completed
+                if (user.completed_tasks && user.completed_tasks.includes(task.id)) {
+                    throw new Error('Task already completed');
+                }
+                
+                // Update user's completed tasks
                 const { error: updateError } = await supabaseClient
                     .from('users')
                     .update({ 
-                        completed_tasks: [...(user.completed_tasks || []), task.id],
-                        stars_earned: (user.stars_earned || 0) + task.stars_reward
+                        completed_tasks: [...(user.completed_tasks || []), task.id]
+                        // stars_earned will be updated automatically by trigger
                     })
                     .eq('telegram_id', userData.telegramId);
                 
@@ -1597,7 +1602,7 @@
                     Completed
                 `;
                 
-                // Update stats and move to completed section
+                // Refresh the display
                 await updateUserStats();
                 await generateTaskPills();
                 
@@ -1611,18 +1616,22 @@
             }
         }
 
-        // Update the stats function
+        // Update the stats function to show both task and referral stars
         async function updateUserStats() {
             try {
                 const { data: user } = await supabaseClient
                     .from('users')
-                    .select('stars_earned, successful_referrals')
+                    .select(`
+                        stars_earned,
+                        completed_tasks,
+                        (SELECT COUNT(*) FROM users WHERE referred_by = telegram_id) as referral_count
+                    `)
                     .eq('telegram_id', userData.telegramId)
                     .single();
 
                 if (user) {
                     document.getElementById('dashStars').textContent = user.stars_earned || 0;
-                    document.getElementById('dashReferrals').textContent = user.successful_referrals || 0;
+                    document.getElementById('dashReferrals').textContent = user.referral_count || 0;
                 }
             } catch (error) {
                 console.error('Error updating stats:', error);

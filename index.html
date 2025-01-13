@@ -582,6 +582,15 @@
             width: 40px;
             text-align: center;
         }
+
+        .task-pill.completed {
+            opacity: 0.7;
+        }
+
+        .task-button.completed {
+            background: #2e7d32;
+            cursor: default;
+        }
     </style>
 </head>
 <body>
@@ -1177,29 +1186,30 @@
         }
 
         // Update the tasks container generation
-        function generateTaskPills() {
+        async function generateTaskPills() {
             const tasksContainer = document.querySelector('.tasks-container');
-            const taskTypes = ['twitter', 'telegram', 'adChannel', 'adInstagram'];
+            const telegramId = urlParams.get('telegram_id');
+            const tasks = await DB.getAvailableTasks(telegramId);
             
             let taskHtml = '';
             
-            taskTypes.forEach(taskType => {
+            tasks.forEach(task => {
                 taskHtml += `
-                    <div class="task-pill">
+                    <div class="task-pill ${task.completed ? 'completed' : ''}">
                         <div class="task-info">
-                            <span class="material-icons">${getTaskIcon(taskType)}</span>
+                            <span class="material-icons">${getTaskIcon(task.task_type)}</span>
                             <div class="task-text">
-                                <span>${APP_CONFIG.taskNames[taskType]}</span>
-                                <span class="task-reward">+${APP_CONFIG.rewards[taskType]} $STAR</span>
+                                <span>${task.task_name}</span>
+                                <span class="task-reward">+${task.stars_reward} $STAR</span>
                             </div>
                         </div>
-                        <a href="${APP_CONFIG.links[taskType]}" 
+                        <a href="${APP_CONFIG.links[task.task_type]}" 
                            target="_blank" 
-                           class="task-button"
-                           onclick="event.preventDefault(); window.open('${APP_CONFIG.links[taskType]}', '_blank'); handleTaskCompletion('${taskType}');"
+                           class="task-button ${task.completed ? 'completed' : ''}"
+                           onclick="event.preventDefault(); window.open('${APP_CONFIG.links[task.task_type]}', '_blank'); ${task.completed ? '' : `handleTaskCompletion('${task.task_type}')`};"
                         >
                             <span class="material-icons">arrow_forward</span>
-                            Go
+                            ${task.completed ? 'Done' : 'Go'}
                         </a>
                     </div>
                 `;
@@ -1300,15 +1310,25 @@
 
         // Add this to your initialization code
         async function initializeUser() {
+            const urlParams = new URLSearchParams(window.location.search);
             const telegramId = urlParams.get('telegram_id');
             const username = urlParams.get('username');
+            const refLink = urlParams.get('ref_link');
+            const referredBy = urlParams.get('referred_by');
+            const joinedDate = urlParams.get('joined_date');
             
             if (!telegramId || !username) {
                 console.log('No user parameters found, waiting for bot interaction');
                 return;
             }
             
-            console.log('Initializing user with:', { telegramId, username });
+            console.log('Initializing user with:', { 
+                telegramId, 
+                username, 
+                refLink,
+                referredBy,
+                joinedDate 
+            });
             
             try {
                 const userData = await DB.createOrUpdateUser(telegramId, username);
@@ -1330,8 +1350,7 @@
 
         function updateReferralUI(referralData) {
             document.getElementById('dashReferrals').textContent = referralData.count;
-            document.getElementById('dashRefLink').textContent = 
-                `https://t.me/Star_voyage?start=${referralData.code}`;
+            document.getElementById('dashRefLink').textContent = referralData.refLink;
         }
 
         // Call this when the page loads
@@ -1345,11 +1364,11 @@
                         throw new Error('Supabase not initialized');
                     }
                     
-                    // Get referral code from URL if user was referred
                     const urlParams = new URLSearchParams(window.location.search);
-                    const referredBy = urlParams.get('ref');
+                    const refLink = urlParams.get('ref_link');
+                    const referredBy = urlParams.get('referred_by');
+                    const joinedDate = urlParams.get('joined_date');
                     
-                    console.log('Creating/updating user:', { telegramId, username });
                     const { data, error } = await supabase
                         .from('users')
                         .upsert([
@@ -1357,19 +1376,13 @@
                                 telegram_id: telegramId,
                                 username: username,
                                 stars_earned: 0,
-                                referral_code: `REF${telegramId}`,  // Simple referral code
-                                referred_by: referredBy
+                                ref_link: refLink,
+                                referred_by: referredBy,
+                                joined_date: joinedDate || new Date().toISOString(),
                             }
                         ], { onConflict: 'telegram_id' });
                     
                     if (error) throw error;
-                    
-                    // If this is a new user and they were referred, record the referral
-                    if (referredBy) {
-                        await this.recordReferral(referredBy, telegramId);
-                    }
-                    
-                    console.log('User created/updated successfully:', data);
                     return data;
                 } catch (error) {
                     console.error('Error in createOrUpdateUser:', error);
@@ -1377,112 +1390,80 @@
                 }
             },
 
-            async recordReferral(referrerCode, referredTelegramId) {
+            async getAvailableTasks(telegramId) {
                 try {
-                    // Get referrer user
-                    const { data: referrer } = await supabase
-                        .from('users')
-                        .select('id')
-                        .eq('referral_code', referrerCode)
-                        .single();
+                    // Get all active tasks
+                    const { data: allTasks } = await supabase
+                        .from('tasks')
+                        .select('*')
+                        .eq('is_active', true);
 
-                    // Get referred user
-                    const { data: referred } = await supabase
-                        .from('users')
-                        .select('id')
-                        .eq('telegram_id', referredTelegramId)
-                        .single();
+                    // Get user's completed tasks
+                    const { data: completedTasks } = await supabase
+                        .from('completed_tasks')
+                        .select('task_id')
+                        .eq('user_id', telegramId);
 
-                    if (!referrer || !referred) return null;
+                    const completedTaskIds = completedTasks?.map(t => t.task_id) || [];
 
-                    // Record referral
-                    const { error } = await supabase
-                        .from('referrals')
-                        .insert([{
-                            referrer_id: referrer.id,
-                            referred_id: referred.id
-                        }]);
-
-                    if (!error) {
-                        // Increment referrer's count
-                        await supabase
-                            .from('users')
-                            .update({ referral_count: supabase.sql`referral_count + 1` })
-                            .eq('id', referrer.id);
-                    }
+                    // Mark tasks as completed or not
+                    return allTasks?.map(task => ({
+                        ...task,
+                        completed: completedTaskIds.includes(task.id)
+                    })) || [];
                 } catch (error) {
-                    console.error('Error recording referral:', error);
+                    console.error('Error getting available tasks:', error);
+                    return [];
                 }
-            },
-
-            async getUserReferrals(telegramId) {
-                if (!supabase) return { count: 0, referrals: [] };
-
-                const { data: user } = await supabase
-                    .from('users')
-                    .select('id, referral_count, referral_code')
-                    .eq('telegram_id', telegramId)
-                    .single();
-
-                if (!user) return { count: 0, referrals: [] };
-
-                const { data: referrals } = await supabase
-                    .from('referrals')
-                    .select(`
-                        referred:referred_id(
-                            telegram_id,
-                            username,
-                            created_at
-                        )
-                    `)
-                    .eq('referrer_id', user.id);
-
-                return {
-                    count: user.referral_count,
-                    code: user.referral_code,
-                    referrals: referrals || []
-                };
             },
 
             async recordTaskCompletion(telegramId, taskType, starsEarned) {
-                if (!supabase) {
-                    console.error('Supabase not initialized');
+                try {
+                    // Get task ID
+                    const { data: task } = await supabase
+                        .from('tasks')
+                        .select('id')
+                        .eq('task_type', taskType)
+                        .single();
+
+                    if (!task) return null;
+
+                    // Check if already completed
+                    const { data: existing } = await supabase
+                        .from('completed_tasks')
+                        .select('*')
+                        .eq('user_id', telegramId)
+                        .eq('task_id', task.id)
+                        .single();
+
+                    if (existing) {
+                        return { error: 'Task already completed' };
+                    }
+
+                    // Record completion
+                    const { data, error } = await supabase
+                        .from('completed_tasks')
+                        .insert([{
+                            user_id: telegramId,
+                            task_id: task.id,
+                            stars_earned: starsEarned
+                        }]);
+
+                    if (!error) {
+                        // Update user's total stars
+                        await supabase
+                            .from('users')
+                            .update({ 
+                                stars_earned: supabase.sql`stars_earned + ${starsEarned}` 
+                            })
+                            .eq('telegram_id', telegramId);
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('Error recording task:', error);
                     return null;
                 }
-                // First get user id
-                const { data: userData } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('telegram_id', telegramId)
-                    .single();
-
-                if (!userData) return null;
-
-                // Check if task was already completed
-                const { data: existingTask } = await supabase
-                    .from('completed_tasks')
-                    .select('id')
-                    .eq('user_id', userData.id)
-                    .eq('task_type', taskType)
-                    .single();
-
-                if (existingTask) {
-                    return { error: 'Task already completed' };
-                }
-
-                // Record new task completion
-                const { data, error } = await supabase
-                    .from('completed_tasks')
-                    .insert([
-                        {
-                            user_id: userData.id,
-                            task_type: taskType,
-                            stars_earned: starsEarned
-                        }
-                    ]);
-
-                if (error) console.error('Error recording task:', error);
-                return data;
             },
 
             async getUserTasks(telegramId) {

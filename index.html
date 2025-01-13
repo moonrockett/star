@@ -436,6 +436,43 @@
             color: #ffd700;
             font-weight: bold;
         }
+
+        .task-pill {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .task-button {
+            background: linear-gradient(135deg, goldenrod 0%, darkgoldenrod 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .task-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -535,6 +572,13 @@
                             <span class="material-icons text-gray-300">content_copy</span>
                         </button>
                     </div>
+                </div>
+
+                <div class="mt-6">
+                    <button class="primary-button" onclick="openTasksModal()">
+                        <span class="material-icons">task_alt</span>
+                        Earn by Tasks
+                    </button>
                 </div>
             </div>
 
@@ -666,6 +710,84 @@
             <span class="material-icons">check_circle</span>
             <span id="toastMessage"></span>
         </div>
+
+        <!-- Add this after the payment modal -->
+        <div id="tasksModal" class="glass-card" style="display: none;">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                <span class="material-icons">task_alt</span>
+                Earn Stars by Tasks
+            </h3>
+            
+            <div class="tasks-container space-y-4">
+                <!-- Twitter/X Task -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">flutter_dash</span>
+                        <span>Follow Star Shop on X (Twitter)</span>
+                    </div>
+                    <!-- SET YOUR X/TWITTER LINK HERE -->
+                    <a href="https://x.com/your_profile" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Telegram Channel Tasks -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">telegram</span>
+                        <span>Join Telegram Channel #1</span>
+                    </div>
+                    <!-- SET YOUR TELEGRAM CHANNEL 1 LINK HERE -->
+                    <a href="https://t.me/your_channel1" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">telegram</span>
+                        <span>Join Telegram Channel #2</span>
+                    </div>
+                    <!-- SET YOUR TELEGRAM CHANNEL 2 LINK HERE -->
+                    <a href="https://t.me/your_channel2" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Instagram Tasks -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">photo_camera</span>
+                        <span>Follow Instagram Page #1</span>
+                    </div>
+                    <!-- SET YOUR INSTAGRAM PAGE 1 LINK HERE -->
+                    <a href="https://instagram.com/your_page1" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">photo_camera</span>
+                        <span>Follow Instagram Page #2</span>
+                    </div>
+                    <!-- SET YOUR INSTAGRAM PAGE 2 LINK HERE -->
+                    <a href="https://instagram.com/your_page2" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+            </div>
+
+            <button class="wallet-button back-button mt-4" onclick="closeTasksModal()">
+                <span class="material-icons">arrow_back</span>
+                Back to Earn
+            </button>
+        </div>
     </div>
 
     <!-- Keep all the scripts from working perfect.html and add the functionality from star/index.html -->
@@ -705,7 +827,8 @@
         const userData = {
             userName: decodeURIComponent(urlParams.get('username') || 'Unknown User'),
             referralCount: parseInt(urlParams.get('referrals') || '0'),
-            starsEarned: parseInt(urlParams.get('stars') || '0'),
+            // Calculate stars based on referrals (1 star per referral)
+            starsEarned: parseInt(urlParams.get('referrals') || '0'),
             refLink: decodeURIComponent(urlParams.get('ref_link') || '#')
         };
 
@@ -854,6 +977,16 @@
             document.getElementById('orderId').textContent = newOrderId;
             openModal();
         });
+
+        function openTasksModal() {
+            document.querySelector('.glass-card').style.display = 'none';
+            document.getElementById('tasksModal').style.display = 'block';
+        }
+
+        function closeTasksModal() {
+            document.getElementById('tasksModal').style.display = 'none';
+            document.querySelector('.glass-card').style.display = 'block';
+        }
     </script>
 </body>
 </html>

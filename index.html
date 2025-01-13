@@ -8,12 +8,11 @@
     <link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
         // Initialize Supabase client with error handling
         let supabase;
         try {
-            // Use the createClient from the supabase-js library
             supabase = supabaseJs.createClient(
                 'https://iolupdbwmpjtxhjdgbes.supabase.co',
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
@@ -1302,22 +1301,28 @@
         // Database Functions
         const DB = {
             async createOrUpdateUser(telegramId, username) {
-                if (!supabase) {
-                    console.error('Supabase not initialized');
+                try {
+                    if (!supabase) {
+                        throw new Error('Supabase not initialized');
+                    }
+                    console.log('Creating/updating user:', { telegramId, username });
+                    const { data, error } = await supabase
+                        .from('users')
+                        .upsert([
+                            {
+                                telegram_id: telegramId,
+                                username: username,
+                                stars_earned: 0
+                            }
+                        ], { onConflict: 'telegram_id' });
+                    
+                    if (error) throw error;
+                    console.log('User created/updated successfully:', data);
+                    return data;
+                } catch (error) {
+                    console.error('Error in createOrUpdateUser:', error);
                     return null;
                 }
-                const { data, error } = await supabase
-                    .from('users')
-                    .upsert([
-                        {
-                            telegram_id: telegramId,
-                            username: username,
-                            stars_earned: 0
-                        }
-                    ], { onConflict: 'telegram_id' });
-                
-                if (error) console.error('Error creating/updating user:', error);
-                return data;
             },
 
             async recordTaskCompletion(telegramId, taskType, starsEarned) {

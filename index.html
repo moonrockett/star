@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,15 +9,25 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     <script>
         // Initialize Supabase client with error handling
         let supabase;
         try {
+            // Load Supabase only after the script is ready
+            window.addEventListener('load', function() {
+                if (typeof supabaseJs !== 'undefined') {
             supabase = supabaseJs.createClient(
                 'https://iolupdbwmpjtxhjdgbes.supabase.co',
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
             );
             console.log('Supabase initialized successfully');
+                    // Initialize user after Supabase is ready
+                    initializeUser();
+                } else {
+                    console.error('Supabase script not loaded');
+                }
+            });
         } catch (error) {
             console.error('Error initializing Supabase:', error);
         }
@@ -962,7 +970,7 @@
             // Task Links
             links: {
                 twitter: "https://x.com/TelegramStarbot",
-                telegram: "https://t.me/Starearnairdropbot",
+                telegram: "https://t.me/Star_voyage",
                 adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
                 adInstagram: "https://www.instagram.com/cryptolordkings?igsh=MWV4bXB1MDd4MDdiMw=="
             },
@@ -1291,9 +1299,25 @@
             const telegramId = urlParams.get('telegram_id');
             const username = urlParams.get('username');
             
-            if (telegramId) {
-                await DB.createOrUpdateUser(telegramId, username);
-                await loadUserHistory(telegramId);
+            console.log('Initializing user with:', { telegramId, username });
+            
+            if (!telegramId) {
+                console.warn('No telegram_id in URL parameters');
+                return;
+            }
+
+            try {
+                const userData = await DB.createOrUpdateUser(telegramId, username);
+                console.log('User initialized:', userData);
+                
+                if (userData) {
+                    await loadUserHistory(telegramId);
+                    console.log('User history loaded');
+                } else {
+                    console.error('Failed to initialize user');
+                }
+            } catch (error) {
+                console.error('Error in user initialization:', error);
             }
         }
 

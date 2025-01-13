@@ -11,9 +11,10 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        let supabaseClient;
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                supabase = supabase.createClient(
+                supabaseClient = supabase.createClient(
                     'https://iolupdbwmpjtxhjdgbes.supabase.co',
                     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
                 );
@@ -1314,7 +1315,7 @@
             }
 
             // Update stars display after completion
-            const { data: user } = await supabase
+            const { data: user } = await supabaseClient
                 .from('users')
                 .select('stars_earned')
                 .eq('telegram_id', telegramId)
@@ -1338,7 +1339,7 @@
             
             try {
                 // First create or update user in database
-                const { error: upsertError } = await supabase
+                const { error: upsertError } = await supabaseClient
                     .from('users')
                     .upsert({
                         telegram_id: telegramId,
@@ -1362,14 +1363,14 @@
                 }
 
                 // Get user data including stars and referrals
-                const { data: user } = await supabase
+                const { data: user } = await supabaseClient
                     .from('users')
                     .select('stars_earned')
                     .eq('telegram_id', telegramId)
                     .single();
 
                 // Get referral count
-                const { data: referrals } = await supabase
+                const { data: referrals } = await supabaseClient
                     .from('users')
                     .select('telegram_id')
                     .eq('referred_by', telegramId);
@@ -1404,13 +1405,13 @@
             async getAvailableTasks(telegramId) {
                 try {
                     // Get all active tasks
-                    const { data: allTasks } = await supabase
+                    const { data: allTasks } = await supabaseClient
                         .from('tasks')
                         .select('*')
                         .eq('is_active', true);
 
                     // Get user's completed tasks
-                    const { data: completedTasks } = await supabase
+                    const { data: completedTasks } = await supabaseClient
                         .from('completed_tasks')
                         .select('task_id')
                         .eq('user_id', telegramId);
@@ -1431,7 +1432,7 @@
             async recordTaskCompletion(telegramId, taskType, starsEarned) {
                 try {
                     // Get task ID
-                    const { data: task } = await supabase
+                    const { data: task } = await supabaseClient
                         .from('tasks')
                         .select('id')
                         .eq('task_type', taskType)
@@ -1440,7 +1441,7 @@
                     if (!task) return null;
 
                     // Check if already completed
-                    const { data: existing } = await supabase
+                    const { data: existing } = await supabaseClient
                         .from('completed_tasks')
                         .select('*')
                         .eq('user_telegram_id', telegramId)
@@ -1452,7 +1453,7 @@
                     }
 
                     // Record completion
-                    const { data, error } = await supabase
+                    const { data, error } = await supabaseClient
                         .from('completed_tasks')
                         .insert([{
                             user_telegram_id: telegramId,
@@ -1462,10 +1463,10 @@
 
                     if (!error) {
                         // Update user's total stars
-                        await supabase
+                        await supabaseClient
                             .from('users')
                             .update({ 
-                                stars_earned: supabase.sql`stars_earned + ${starsEarned}` 
+                                stars_earned: supabaseClient.sql`stars_earned + ${starsEarned}` 
                             })
                             .eq('telegram_id', telegramId);
                     }
@@ -1478,11 +1479,11 @@
             },
 
             async getUserTasks(telegramId) {
-                if (!supabase) {
+                if (!supabaseClient) {
                     console.error('Supabase not initialized');
                     return [];
                 }
-                const { data: userData } = await supabase
+                const { data: userData } = await supabaseClient
                     .from('users')
                     .select('id')
                     .eq('telegram_id', telegramId)
@@ -1490,7 +1491,7 @@
 
                 if (!userData) return [];
 
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('completed_tasks')
                     .select('*')
                     .eq('user_id', userData.id)
@@ -1558,7 +1559,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 // Get task details
-                const { data: task } = await supabase
+                const { data: task } = await supabaseClient
                     .from('tasks')
                     .select('*')
                     .eq('task_type', taskType)
@@ -1568,12 +1569,12 @@
                     throw new Error('Task not found');
                 }
                 
-                // Update user's completed tasks and stars
-                const { error: updateError } = await supabase
+                // First update completed tasks
+                const { error: updateError } = await supabaseClient
                     .from('users')
                     .update({ 
-                        completed_tasks: supabase.sql`array_append(completed_tasks, ${task.id})`,
-                        stars_earned: supabase.sql`stars_earned + ${task.stars_reward}`
+                        completed_tasks: [...(existingUser.completed_tasks || []), task.id],
+                        stars_earned: (existingUser.stars_earned || 0) + task.stars_reward
                     })
                     .eq('telegram_id', userData.telegramId);
                 
@@ -1612,7 +1613,7 @@
         // Update the stats function
         async function updateUserStats() {
             try {
-                const { data: user } = await supabase
+                const { data: user } = await supabaseClient
                     .from('users')
                     .select('stars_earned, successful_referrals')
                     .eq('telegram_id', userData.telegramId)

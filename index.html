@@ -1060,7 +1060,7 @@
         document.getElementById('dashStars').textContent = userData.starsEarned;
         document.getElementById('dashReferrals').textContent = userData.referralCount;
         document.getElementById('dashRefLink').textContent = 
-            `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
+            userData.refLink || `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
 
         // Copy functionality
         function copyRefLink() {
@@ -1380,7 +1380,8 @@
                     document.getElementById('dashStars').textContent = user.stars_earned || 0;
                 }
                 document.getElementById('dashReferrals').textContent = referrals?.length || 0;
-                document.getElementById('dashRefLink').textContent = userData.refLink || '';
+                document.getElementById('dashRefLink').textContent = 
+                    userData.refLink || `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
 
                 // Load task history
                 await loadUserHistory(telegramId);
@@ -1558,23 +1559,31 @@
             try {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                // Get task details
-                const { data: task } = await supabaseClient
-                    .from('tasks')
-                    .select('*')
-                    .eq('task_type', taskType)
-                    .single();
+                // Get task details and current user data
+                const [taskResponse, userResponse] = await Promise.all([
+                    supabaseClient.from('tasks')
+                        .select('*')
+                        .eq('task_type', taskType)
+                        .single(),
+                    supabaseClient.from('users')
+                        .select('*')
+                        .eq('telegram_id', userData.telegramId)
+                        .single()
+                ]);
                 
-                if (!task) {
-                    throw new Error('Task not found');
+                if (!taskResponse.data || !userResponse.data) {
+                    throw new Error('Could not find task or user data');
                 }
+
+                const task = taskResponse.data;
+                const user = userResponse.data;
                 
-                // First update completed tasks
+                // Update user's completed tasks and stars
                 const { error: updateError } = await supabaseClient
                     .from('users')
                     .update({ 
-                        completed_tasks: [...(existingUser.completed_tasks || []), task.id],
-                        stars_earned: (existingUser.stars_earned || 0) + task.stars_reward
+                        completed_tasks: [...(user.completed_tasks || []), task.id],
+                        stars_earned: (user.stars_earned || 0) + task.stars_reward
                     })
                     .eq('telegram_id', userData.telegramId);
                 
@@ -1588,17 +1597,9 @@
                     Completed
                 `;
                 
-                // Update stats display
+                // Update stats and move to completed section
                 await updateUserStats();
-                
-                // Move to completed section
-                const taskPill = button.closest('.task-pill');
-                const completedSection = document.querySelector('.completed-tasks-list');
-                if (taskPill && completedSection) {
-                    taskPill.classList.add('completed');
-                    completedSection.appendChild(taskPill.cloneNode(true));
-                    taskPill.remove();
-                }
+                await generateTaskPills();
                 
             } catch (error) {
                 console.error('Error completing task:', error);

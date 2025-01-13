@@ -1322,27 +1322,51 @@
                 return;
             }
             
-            console.log('Initializing user with:', { 
-                telegramId, 
-                username, 
-                refLink,
-                referredBy,
-                joinedDate 
-            });
+            console.log('Checking for existing user:', telegramId);
             
             try {
-                const userData = await DB.createOrUpdateUser(telegramId, username);
-                console.log('User initialized:', userData);
-                
-                if (userData) {
-                    await loadUserHistory(telegramId);
-                    // Load referral data
-                    const referralData = await DB.getUserReferrals(telegramId);
-                    updateReferralUI(referralData);
-                    console.log('User data loaded');
+                // First check if user exists
+                const { data: existingUser } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                if (existingUser) {
+                    console.log('Existing user found, updating data:', existingUser);
+                    // Update only if username or ref_link changed
+                    if (existingUser.username !== username || existingUser.ref_link !== refLink) {
+                        const { data, error } = await supabase
+                            .from('users')
+                            .update({
+                                username: username,
+                                ref_link: refLink
+                            })
+                            .eq('telegram_id', telegramId);
+
+                        if (error) throw error;
+                    }
                 } else {
-                    console.error('Failed to initialize user');
+                    console.log('Creating new user:', { telegramId, username });
+                    // Create new user
+                    const { data, error } = await supabase
+                        .from('users')
+                        .insert([{
+                            telegram_id: telegramId,
+                            username: username,
+                            stars_earned: 0,
+                            ref_link: refLink,
+                            referred_by: referredBy,
+                            joined_date: joinedDate || new Date().toISOString()
+                        }]);
+
+                    if (error) throw error;
                 }
+
+                // Load user data
+                await loadUserHistory(telegramId);
+                await loadUserTasks(telegramId);
+                console.log('User data loaded successfully');
             } catch (error) {
                 console.error('Error in user initialization:', error);
             }
@@ -1432,7 +1456,7 @@
                     const { data: existing } = await supabase
                         .from('completed_tasks')
                         .select('*')
-                        .eq('user_id', telegramId)
+                        .eq('user_telegram_id', telegramId)
                         .eq('task_id', task.id)
                         .single();
 
@@ -1444,7 +1468,7 @@
                     const { data, error } = await supabase
                         .from('completed_tasks')
                         .insert([{
-                            user_id: telegramId,
+                            user_telegram_id: telegramId,
                             task_id: task.id,
                             stars_earned: starsEarned
                         }]);

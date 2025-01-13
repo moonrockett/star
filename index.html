@@ -960,8 +960,8 @@
             // Task Links
             links: {
                 twitter: "https://x.com/TelegramStarbot",
-                telegram: "t.me/Star_voyage",
-                adChannel: "t.me/Binanceredpacketfreerewardclaim",
+                telegram: "https://t.me/Star_voyage",
+                adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
                 adInstagram: "https://www.instagram.com/cryptolordkings"
             },
             
@@ -1540,13 +1540,12 @@
             if (!button.classList.contains('verifying')) {
                 // First click - open link
                 window.open(link, '_blank');
-                setTimeout(() => {
-                    button.innerHTML = `
-                        <span class="material-icons">verified</span>
-                        Verify
-                    `;
-                    button.classList.add('verifying');
-                }, 500);
+                // Change button immediately to verify
+                button.innerHTML = `
+                    <span class="material-icons">verified</span>
+                    Verify
+                `;
+                button.classList.add('verifying');
                 return;
             }
             
@@ -1557,6 +1556,7 @@
             `;
             
             try {
+                // Show loading animation for a moment
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
                 // Record task completion in database
@@ -1573,7 +1573,7 @@
                         taskPill.remove();
                     }
                     
-                    // Update button state with softer color
+                    // Update button state
                     button.classList.remove('verifying');
                     button.classList.add('completed');
                     button.innerHTML = `
@@ -1581,16 +1581,11 @@
                         Completed
                     `;
                     
-                    // Update stars count
-                    const { data: userData } = await supabase
-                        .from('users')
-                        .select('stars_earned')
-                        .eq('telegram_id', userData.telegramId)
-                        .single();
+                    // Refresh the entire tasks section to show updated state
+                    await generateTaskPills();
                     
-                    if (userData) {
-                        document.getElementById('dashStars').textContent = userData.stars_earned;
-                    }
+                    // Update stats in earn section
+                    await updateUserStats();
                 }
             } catch (error) {
                 console.error('Error completing task:', error);
@@ -1599,6 +1594,34 @@
                     <span class="material-icons">error</span>
                     Try Again
                 `;
+            }
+        }
+
+        // Add new function to update user stats
+        async function updateUserStats() {
+            try {
+                const telegramId = userData.telegramId;
+                
+                // Get user's stars
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('stars_earned')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                // Get referral count
+                const { data: referrals } = await supabase
+                    .from('users')
+                    .select('telegram_id')
+                    .eq('referred_by', telegramId);
+
+                // Update UI
+                if (user) {
+                    document.getElementById('dashStars').textContent = user.stars_earned || 0;
+                }
+                document.getElementById('dashReferrals').textContent = referrals?.length || 0;
+            } catch (error) {
+                console.error('Error updating user stats:', error);
             }
         }
     </script>

@@ -8,13 +8,13 @@
     <link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                supabase = supabaseJs.createClient(
-                    process.env.NEXT_PUBLIC_STARSHOP_SUPABASE_SUPABASE_URL,
-                    process.env.NEXT_PUBLIC_STARSHOP_SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY
+                supabase = supabase.createClient(
+                    'https://iolupdbwmpjtxhjdgbes.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
                 );
                 console.log('Supabase initialized successfully');
                 initializeUser();
@@ -1301,13 +1301,13 @@
             const telegramId = urlParams.get('telegram_id');
             const username = urlParams.get('username');
             
-            console.log('Initializing user with:', { telegramId, username });
-            
-            if (!telegramId) {
-                console.warn('No telegram_id in URL parameters');
+            if (!telegramId || !username) {
+                console.log('No user parameters found, waiting for bot interaction');
                 return;
             }
-
+            
+            console.log('Initializing user with:', { telegramId, username });
+            
             try {
                 const userData = await DB.createOrUpdateUser(telegramId, username);
                 console.log('User initialized:', userData);

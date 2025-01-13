@@ -582,33 +582,34 @@
     </div>
 
     <div class="container mx-auto px-4 py-8 max-w-md">
+        <!-- Countdown pill moved outside main card -->
+        <div class="countdown-pill mb-4">
+            <div class="countdown-content">
+                <div class="countdown-text">
+                    <span class="material-icons">rocket_launch</span>
+                    <span>$STAR Airdrop starts in</span>
+                </div>
+                <div class="countdown-timer">
+                    <div class="countdown-numbers" id="countdownDisplay">
+                        00:00
+                    </div>
+                    <div class="countdown-labels">
+                        <span>days</span>
+                        <span>hours</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main glass card starts here -->
         <div class="glass-card">
             <div class="text-center mb-8">
                 <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
                     <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
                 </svg>
                 <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
-                <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
+                <p class="text-gray-300 mb-1">Purchase $STAR using TON</p>
                 <p class="text-sm text-golden-accent">No KYC required</p>
-            </div>
-
-            <!-- Add this after the title section and before the Buy Section -->
-            <div class="countdown-pill mb-8">
-                <div class="countdown-content">
-                    <div class="countdown-text">
-                        <span class="material-icons">rocket_launch</span>
-                        <span>Airdrop starts in</span>
-                    </div>
-                    <div class="countdown-timer">
-                        <div class="countdown-numbers" id="countdownDisplay">
-                            00:00
-                        </div>
-                        <div class="countdown-labels">
-                            <span>days</span>
-                            <span>hours</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- Buy Section -->
@@ -616,7 +617,7 @@
                 <div class="section-content">
                     <label class="flex items-center gap-2 text-gray-300 mb-2">
                         <span class="material-icons">shopping_cart</span>
-                        Number of Stars
+                        Number of $STAR
                     </label>
                     <div class="amount-control">
                         <button class="amount-button" id="decreaseBtn">-</button>
@@ -626,7 +627,7 @@
                     <div class="special-offer">
                         <span class="material-icons">local_offer</span>
                         <div class="special-offer-text">
-                            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
+                            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 $STAR!
                         </div>
                     </div>
                 </div>
@@ -635,7 +636,7 @@
                     <div class="flex justify-between items-center text-gray-300 mb-2">
                         <span class="flex items-center gap-2">
                             <span class="material-icons">paid</span>
-                            Price per 50 stars:
+                            Price per 50 $STAR:
                         </span>
                         <span>0.13 TON</span>
                     </div>
@@ -662,7 +663,7 @@
                         <span class="info-value font-bold" id="dashUsername"></span>
                     </div>
                     <div class="info-row flex justify-between items-center mb-4">
-                        <span class="info-label text-gray-400">Stars Earned:</span>
+                        <span class="info-label text-gray-400">$STAR Earned:</span>
                         <span class="info-value font-bold text-yellow-500" id="dashStars">0</span>
                     </div>
                     <div class="info-row flex justify-between items-center mb-4">
@@ -687,7 +688,7 @@
                 <div class="mt-6">
                     <button class="primary-button opacity-50 cursor-not-allowed" disabled>
                         <span class="material-icons">account_balance_wallet</span>
-                        Withdraw Stars
+                        Withdraw $STAR
                     </button>
                     <p class="text-center text-sm text-gray-400 mt-2">Coming Soon</p>
                 </div>
@@ -705,7 +706,7 @@
                 <div class="mt-6">
                     <button class="primary-button" onclick="openTasksModal()">
                         <span class="material-icons">task_alt</span>
-                        Earn by Tasks
+                        Earn $STAR by Tasks
                     </button>
                 </div>
             </div>
@@ -713,11 +714,11 @@
             <div class="tab-buttons">
                 <button class="tab-button active" data-tab="buy">
                     <span class="material-icons">shopping_cart</span>
-                    Buy Stars
+                    Buy $STAR
                 </button>
                 <button class="tab-button" data-tab="earn">
                     <span class="material-icons">group</span>
-                    Earn Stars
+                    Earn $STAR
                 </button>
             </div>
         </div>
@@ -740,10 +741,10 @@
                 <div>
                     <p class="text-gray-400 flex items-center gap-2 mb-2">
                         <span class="material-icons">stars</span>
-                        Stars to Purchase:
+                        $STAR to Purchase:
                     </p>
                     <div class="flex items-center gap-2">
-                        <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 Stars</p>
+                        <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 $STAR</p>
                     </div>
                 </div>
 
@@ -843,7 +844,7 @@
         <div id="tasksModal" class="glass-card" style="display: none;">
             <h3 class="text-white font-bold mb-4 flex items-center gap-2">
                 <span class="material-icons">task_alt</span>
-                Earn Stars by Tasks
+                Earn $STAR by Tasks
             </h3>
             
             <div class="tasks-container space-y-4">
@@ -853,7 +854,7 @@
                         <span class="material-icons">flutter_dash</span>
                         <div class="task-text">
                             <span>Follow Star Shop on X (Twitter)</span>
-                            <span class="task-reward">+5 Stars</span>
+                            <span class="task-reward">+5 $STAR</span>
                         </div>
                     </div>
                     <a href="https://x.com/TelegramStarbot" target="_blank" class="task-button">
@@ -868,7 +869,7 @@
                         <span class="material-icons">telegram</span>
                         <div class="task-text">
                             <span>Join Official Telegram Channel</span>
-                            <span class="task-reward">+3 Stars</span>
+                            <span class="task-reward">+3 $STAR</span>
                         </div>
                     </div>
                     <a href="https://t.me/your_channel1" target="_blank" class="task-button">
@@ -883,7 +884,7 @@
                         <span class="material-icons">campaign</span>
                         <div class="task-text">
                             <span>Join Partner Channel</span>
-                            <span class="task-reward">+3 Stars</span>
+                            <span class="task-reward">+3 $STAR</span>
                         </div>
                     </div>
                     <a href="https://t.me/your_ad_channel" target="_blank" class="task-button">
@@ -898,7 +899,7 @@
                         <span class="material-icons">photo_camera</span>
                         <div class="task-text">
                             <span>Follow Partner Instagram</span>
-                            <span class="task-reward">+4 Stars</span>
+                            <span class="task-reward">+4 $STAR</span>
                         </div>
                     </div>
                     <a href="https://instagram.com/your_ad_page" target="_blank" class="task-button">
@@ -948,10 +949,10 @@
             
             // Task Rewards (in stars)
             rewards: {
-                twitter: 10,     // Stars for following on Twitter/X
-                telegram: 5,    // Stars for joining Telegram
-                adChannel: 3,   // Stars for joining ad channel
-                adInstagram: 3  // Stars for following ad Instagram
+                twitter: 10,     // $STAR for following on Twitter/X
+                telegram: 5,    // $STAR for joining Telegram
+                adChannel: 3,   // $STAR for joining ad channel
+                adInstagram: 3  // $STAR for following ad Instagram
             },
             
             // Task Display Names
@@ -1119,7 +1120,7 @@
             const modal = document.getElementById('paymentModal');
             modal.style.display = 'block';
             document.getElementById('paymentAmount').textContent = calculatePrice(currentStars) + ' TON';
-            document.getElementById('starsQuantity').textContent = currentStars + ' Stars';
+            document.getElementById('starsQuantity').textContent = currentStars + ' $STAR';
         }
 
         function closeModal() {
@@ -1200,7 +1201,7 @@
                 historyItem.className = 'history-item';
                 historyItem.innerHTML = `
                     <span class="history-item-text">${item.source}</span>
-                    <span class="history-item-amount">+${item.amount} Star</span>
+                    <span class="history-item-amount">+${item.amount} $STAR</span>
                 `;
                 historyContainer.appendChild(historyItem);
             });
@@ -1219,7 +1220,7 @@
                         <span class="material-icons">flutter_dash</span>
                         <div class="task-text">
                             <span>${APP_CONFIG.taskNames.twitter}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.twitter} Stars</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.twitter} $STAR</span>
                         </div>
                     </div>
                     <a href="${APP_CONFIG.links.twitter}" target="_blank" class="task-button">
@@ -1234,7 +1235,7 @@
                         <span class="material-icons">telegram</span>
                         <div class="task-text">
                             <span>${APP_CONFIG.taskNames.telegram}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.telegram} Stars</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.telegram} $STAR</span>
                         </div>
                     </div>
                     <a href="${APP_CONFIG.links.telegram}" target="_blank" class="task-button">
@@ -1249,7 +1250,7 @@
                         <span class="material-icons">campaign</span>
                         <div class="task-text">
                             <span>${APP_CONFIG.taskNames.adChannel}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.adChannel} Stars</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.adChannel} $STAR</span>
                         </div>
                     </div>
                     <a href="${APP_CONFIG.links.adChannel}" target="_blank" class="task-button">
@@ -1264,7 +1265,7 @@
                         <span class="material-icons">photo_camera</span>
                         <div class="task-text">
                             <span>${APP_CONFIG.taskNames.adInstagram}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.adInstagram} Stars</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.adInstagram} $STAR</span>
                         </div>
                     </div>
                     <a href="${APP_CONFIG.links.adInstagram}" target="_blank" class="task-button">

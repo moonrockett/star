@@ -550,18 +550,20 @@
             font-weight: bold;
             color: white;
             font-family: monospace;
+            letter-spacing: 2px;
         }
 
         .countdown-labels {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             color: #666;
             font-size: 12px;
             margin-top: 4px;
+            padding: 0 4px;
         }
 
         .countdown-labels span {
-            width: 50px;
+            width: 40px;
             text-align: center;
         }
     </style>
@@ -591,11 +593,13 @@
                 </div>
                 <div class="countdown-timer">
                     <div class="countdown-numbers" id="countdownDisplay">
-                        00:00
+                        00:00:00:00
                     </div>
                     <div class="countdown-labels">
                         <span>days</span>
                         <span>hours</span>
+                        <span>min</span>
+                        <span>sec</span>
                     </div>
                 </div>
             </div>
@@ -608,7 +612,7 @@
                     <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
                 </svg>
                 <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
-                <p class="text-gray-300 mb-1">Purchase $STAR using TON</p>
+                <p class="text-gray-300 mb-1">Purchase Telegram Stars using TON</p>
                 <p class="text-sm text-golden-accent">No KYC required</p>
             </div>
 
@@ -617,7 +621,7 @@
                 <div class="section-content">
                     <label class="flex items-center gap-2 text-gray-300 mb-2">
                         <span class="material-icons">shopping_cart</span>
-                        Number of $STAR
+                        Number of Stars
                     </label>
                     <div class="amount-control">
                         <button class="amount-button" id="decreaseBtn">-</button>
@@ -627,7 +631,7 @@
                     <div class="special-offer">
                         <span class="material-icons">local_offer</span>
                         <div class="special-offer-text">
-                            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 $STAR!
+                            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
                         </div>
                     </div>
                 </div>
@@ -636,7 +640,7 @@
                     <div class="flex justify-between items-center text-gray-300 mb-2">
                         <span class="flex items-center gap-2">
                             <span class="material-icons">paid</span>
-                            Price per 50 $STAR:
+                            Price per 50 Stars:
                         </span>
                         <span>0.13 TON</span>
                     </div>
@@ -714,7 +718,7 @@
             <div class="tab-buttons">
                 <button class="tab-button active" data-tab="buy">
                     <span class="material-icons">shopping_cart</span>
-                    Buy $STAR
+                    Buy Stars
                 </button>
                 <button class="tab-button" data-tab="earn">
                     <span class="material-icons">group</span>
@@ -744,7 +748,7 @@
                         $STAR to Purchase:
                     </p>
                     <div class="flex items-center gap-2">
-                        <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 $STAR</p>
+                        <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 Stars</p>
                     </div>
                 </div>
 
@@ -943,7 +947,7 @@
             links: {
                 twitter: "https://x.com/TelegramStarbot",
                 telegram: "https://t.me/Starearnairdropbot",
-                adChannel: "https://x.com/TelegramStarbot?t=sV9qoruobEFpT87WhnyTPQ&s=09",
+                adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
                 adInstagram: "https://www.instagram.com/cryptolordkings?igsh=MWV4bXB1MDd4MDdiMw=="
             },
             
@@ -1120,7 +1124,7 @@
             const modal = document.getElementById('paymentModal');
             modal.style.display = 'block';
             document.getElementById('paymentAmount').textContent = calculatePrice(currentStars) + ' TON';
-            document.getElementById('starsQuantity').textContent = currentStars + ' $STAR';
+            document.getElementById('starsQuantity').textContent = currentStars + ' Stars';
         }
 
         function closeModal() {
@@ -1299,21 +1303,25 @@
             if (difference > 0) {
                 const days = Math.floor(difference / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
                 
                 // Format numbers to always show two digits
                 const formattedDays = String(days).padStart(2, '0');
                 const formattedHours = String(hours).padStart(2, '0');
+                const formattedMinutes = String(minutes).padStart(2, '0');
+                const formattedSeconds = String(seconds).padStart(2, '0');
                 
                 document.getElementById('countdownDisplay').textContent = 
-                    `${formattedDays}:${formattedHours}`;
+                    `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
             } else {
                 document.getElementById('countdownDisplay').textContent = "LIVE!";
             }
         }
 
-        // Update countdown every hour
+        // Update countdown every second instead of every hour
         updateCountdown();
-        setInterval(updateCountdown, 1000 * 60 * 60);
+        setInterval(updateCountdown, 1000);
     </script>
 </body>
 </html>

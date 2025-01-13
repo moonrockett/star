@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@radix-ui/themes@2.0.3/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         :root {
@@ -968,6 +969,119 @@
             }
         };
 
+        // Initialize Supabase client
+        const supabaseUrl = 'https://iolupdbwmpjtxhjdgbes.supabase.co'
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        // Database Functions
+        const DB = {
+            // User Management
+            async createOrUpdateUser(telegramId, username) {
+                const { data, error } = await supabase
+                    .from('users')
+                    .upsert([
+                        {
+                            telegram_id: telegramId,
+                            username: username,
+                            stars_earned: 0
+                        }
+                    ], { onConflict: 'telegram_id' });
+                
+                if (error) console.error('Error creating/updating user:', error);
+                return data;
+            },
+
+            // Task Management
+            async recordTaskCompletion(telegramId, taskType, starsEarned) {
+                // First get user id
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                if (!userData) return null;
+
+                // Check if task was already completed
+                const { data: existingTask } = await supabase
+                    .from('completed_tasks')
+                    .select('id')
+                    .eq('user_id', userData.id)
+                    .eq('task_type', taskType)
+                    .single();
+
+                if (existingTask) {
+                    return { error: 'Task already completed' };
+                }
+
+                // Record new task completion
+                const { data, error } = await supabase
+                    .from('completed_tasks')
+                    .insert([
+                        {
+                            user_id: userData.id,
+                            task_type: taskType,
+                            stars_earned: starsEarned
+                        }
+                    ]);
+
+                if (error) console.error('Error recording task:', error);
+
+                // Update user's total stars
+                await supabase
+                    .from('users')
+                    .update({ stars_earned: userData.stars_earned + starsEarned })
+                    .eq('id', userData.id);
+
+                return data;
+            },
+
+            // Wallet Management
+            async connectWallet(telegramId, walletAddress) {
+                // First get user id
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                if (!userData) return null;
+
+                const { data, error } = await supabase
+                    .from('wallet_connections')
+                    .insert([
+                        {
+                            user_id: userData.id,
+                            wallet_address: walletAddress
+                        }
+                    ]);
+
+                if (error) console.error('Error connecting wallet:', error);
+                return data;
+            },
+
+            // Get user's completed tasks
+            async getUserTasks(telegramId) {
+                const { data: userData } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                if (!userData) return [];
+
+                const { data, error } = await supabase
+                    .from('completed_tasks')
+                    .select('*')
+                    .eq('user_id', userData.id)
+                    .order('completed_at', { ascending: false });
+
+                if (error) console.error('Error fetching tasks:', error);
+                return data || [];
+            }
+        };
+
         // Initialize starfield and animations
         function createStarfield() {
             const starfield = document.getElementById('starfield');
@@ -1166,32 +1280,11 @@
 
         // Replace the earnHistory array and populateEarnHistory function with this:
 
-        function generateEarnHistory(referralCount) {
-            // Create an array of referral entries based on the count
-            const earnHistory = [];
-            
-            // Add an entry for each successful referral
-            for(let i = 0; i < referralCount; i++) {
-                earnHistory.push({
-                    source: 'Referral Bonus',
-                    amount: 1,  // 1 star per referral
-                    date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0] // Dates going backwards
-                });
-            }
-            
-            return earnHistory;
-        }
-
-        function populateEarnHistory() {
+        async function loadUserHistory(telegramId) {
             const historyContainer = document.getElementById('earnHistory');
-            historyContainer.innerHTML = '';
+            const tasks = await DB.getUserTasks(telegramId);
             
-            // Get referral count from URL parameters
-            const referralCount = parseInt(urlParams.get('referrals') || '0');
-            const history = generateEarnHistory(referralCount);
-            
-            if (history.length === 0) {
-                // Show message if no referrals yet
+            if (tasks.length === 0) {
                 historyContainer.innerHTML = `
                     <div class="history-item">
                         <span class="history-item-text text-gray-400">No earnings yet</span>
@@ -1200,12 +1293,13 @@
                 return;
             }
 
-            history.forEach(item => {
+            historyContainer.innerHTML = '';
+            tasks.forEach(task => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 historyItem.innerHTML = `
-                    <span class="history-item-text">${item.source}</span>
-                    <span class="history-item-amount">+${item.amount} $STAR</span>
+                    <span class="history-item-text">${task.task_type}</span>
+                    <span class="history-item-amount">+${task.stars_earned} $STAR</span>
                 `;
                 historyContainer.appendChild(historyItem);
             });
@@ -1217,68 +1311,33 @@
         // Update the tasks container generation
         function generateTaskPills() {
             const tasksContainer = document.querySelector('.tasks-container');
-            tasksContainer.innerHTML = `
-                <!-- Twitter/X Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">flutter_dash</span>
-                        <div class="task-text">
-                            <span>${APP_CONFIG.taskNames.twitter}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.twitter} $STAR</span>
+            const taskTypes = ['twitter', 'telegram', 'adChannel', 'adInstagram'];
+            
+            let taskHtml = '';
+            
+            taskTypes.forEach(taskType => {
+                taskHtml += `
+                    <div class="task-pill">
+                        <div class="task-info">
+                            <span class="material-icons">${getTaskIcon(taskType)}</span>
+                            <div class="task-text">
+                                <span>${APP_CONFIG.taskNames[taskType]}</span>
+                                <span class="task-reward">+${APP_CONFIG.rewards[taskType]} $STAR</span>
+                            </div>
                         </div>
+                        <a href="${APP_CONFIG.links[taskType]}" 
+                           target="_blank" 
+                           class="task-button"
+                           onclick="handleTaskCompletion('${taskType}')">
+                            <span class="material-icons">arrow_forward</span>
+                            Go
+                        </a>
                     </div>
-                    <a href="${APP_CONFIG.links.twitter}" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
+                `;
+            });
 
-                <!-- Telegram Channel Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">telegram</span>
-                        <div class="task-text">
-                            <span>${APP_CONFIG.taskNames.telegram}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.telegram} $STAR</span>
-                        </div>
-                    </div>
-                    <a href="${APP_CONFIG.links.telegram}" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Ad Channel Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">campaign</span>
-                        <div class="task-text">
-                            <span>${APP_CONFIG.taskNames.adChannel}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.adChannel} $STAR</span>
-                        </div>
-                    </div>
-                    <a href="${APP_CONFIG.links.adChannel}" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Ad Instagram Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">photo_camera</span>
-                        <div class="task-text">
-                            <span>${APP_CONFIG.taskNames.adInstagram}</span>
-                            <span class="task-reward">+${APP_CONFIG.rewards.adInstagram} $STAR</span>
-                        </div>
-                    </div>
-                    <a href="${APP_CONFIG.links.adInstagram}" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Coming Soon Pill -->
+            // Add the "coming soon" pill
+            taskHtml += `
                 <div class="task-pill disabled">
                     <div class="task-info">
                         <span class="material-icons">update</span>
@@ -1289,6 +1348,18 @@
                     </div>
                 </div>
             `;
+
+            tasksContainer.innerHTML = taskHtml;
+        }
+
+        function getTaskIcon(taskType) {
+            const icons = {
+                twitter: 'flutter_dash',
+                telegram: 'telegram',
+                adChannel: 'campaign',
+                adInstagram: 'photo_camera'
+            };
+            return icons[taskType] || 'star';
         }
 
         // Call this when initializing the app
@@ -1322,6 +1393,40 @@
         // Update countdown every second instead of every hour
         updateCountdown();
         setInterval(updateCountdown, 1000);
+
+        // Add this function to handle task completion
+        async function handleTaskCompletion(taskType) {
+            const telegramId = urlParams.get('telegram_id');
+            if (!telegramId) {
+                alert('Error: No Telegram ID provided');
+                return;
+            }
+
+            const reward = APP_CONFIG.rewards[taskType];
+            const result = await DB.recordTaskCompletion(telegramId, taskType, reward);
+            
+            if (result && result.error) {
+                alert('You have already completed this task!');
+                return;
+            }
+
+            // Refresh the task history
+            await loadUserHistory(telegramId);
+        }
+
+        // Add this to your initialization code
+        async function initializeUser() {
+            const telegramId = urlParams.get('telegram_id');
+            const username = urlParams.get('username');
+            
+            if (telegramId) {
+                await DB.createOrUpdateUser(telegramId, username);
+                await loadUserHistory(telegramId);
+            }
+        }
+
+        // Call this when the page loads
+        initializeUser();
     </script>
 </body>
 </html>

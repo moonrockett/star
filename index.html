@@ -1316,13 +1316,22 @@
                 
                 if (userData) {
                     await loadUserHistory(telegramId);
-                    console.log('User history loaded');
+                    // Load referral data
+                    const referralData = await DB.getUserReferrals(telegramId);
+                    updateReferralUI(referralData);
+                    console.log('User data loaded');
                 } else {
                     console.error('Failed to initialize user');
                 }
             } catch (error) {
                 console.error('Error in user initialization:', error);
             }
+        }
+
+        function updateReferralUI(referralData) {
+            document.getElementById('dashReferrals').textContent = referralData.count;
+            document.getElementById('dashRefLink').textContent = 
+                `https://t.me/Star_voyage?start=${referralData.code}`;
         }
 
         // Call this when the page loads
@@ -1335,6 +1344,11 @@
                     if (!supabase) {
                         throw new Error('Supabase not initialized');
                     }
+                    
+                    // Get referral code from URL if user was referred
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const referredBy = urlParams.get('ref');
+                    
                     console.log('Creating/updating user:', { telegramId, username });
                     const { data, error } = await supabase
                         .from('users')
@@ -1342,17 +1356,92 @@
                             {
                                 telegram_id: telegramId,
                                 username: username,
-                                stars_earned: 0
+                                stars_earned: 0,
+                                referral_code: `REF${telegramId}`,  // Simple referral code
+                                referred_by: referredBy
                             }
                         ], { onConflict: 'telegram_id' });
                     
                     if (error) throw error;
+                    
+                    // If this is a new user and they were referred, record the referral
+                    if (referredBy) {
+                        await this.recordReferral(referredBy, telegramId);
+                    }
+                    
                     console.log('User created/updated successfully:', data);
                     return data;
                 } catch (error) {
                     console.error('Error in createOrUpdateUser:', error);
                     return null;
                 }
+            },
+
+            async recordReferral(referrerCode, referredTelegramId) {
+                try {
+                    // Get referrer user
+                    const { data: referrer } = await supabase
+                        .from('users')
+                        .select('id')
+                        .eq('referral_code', referrerCode)
+                        .single();
+
+                    // Get referred user
+                    const { data: referred } = await supabase
+                        .from('users')
+                        .select('id')
+                        .eq('telegram_id', referredTelegramId)
+                        .single();
+
+                    if (!referrer || !referred) return null;
+
+                    // Record referral
+                    const { error } = await supabase
+                        .from('referrals')
+                        .insert([{
+                            referrer_id: referrer.id,
+                            referred_id: referred.id
+                        }]);
+
+                    if (!error) {
+                        // Increment referrer's count
+                        await supabase
+                            .from('users')
+                            .update({ referral_count: supabase.sql`referral_count + 1` })
+                            .eq('id', referrer.id);
+                    }
+                } catch (error) {
+                    console.error('Error recording referral:', error);
+                }
+            },
+
+            async getUserReferrals(telegramId) {
+                if (!supabase) return { count: 0, referrals: [] };
+
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('id, referral_count, referral_code')
+                    .eq('telegram_id', telegramId)
+                    .single();
+
+                if (!user) return { count: 0, referrals: [] };
+
+                const { data: referrals } = await supabase
+                    .from('referrals')
+                    .select(`
+                        referred:referred_id(
+                            telegram_id,
+                            username,
+                            created_at
+                        )
+                    `)
+                    .eq('referrer_id', user.id);
+
+                return {
+                    count: user.referral_count,
+                    code: user.referral_code,
+                    referrals: referrals || []
+                };
             },
 
             async recordTaskCompletion(telegramId, taskType, starsEarned) {

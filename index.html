@@ -926,76 +926,7 @@
             </h3>
             
             <div class="tasks-container space-y-4">
-                <!-- Twitter/X Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">flutter_dash</span>
-                        <div class="task-text">
-                            <span>Follow Star Shop on X (Twitter)</span>
-                            <span class="task-reward">+5 $STAR</span>
-                        </div>
-                    </div>
-                    <a href="https://x.com/TelegramStarbot" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Telegram Channel Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">telegram</span>
-                        <div class="task-text">
-                            <span>Join Official Telegram Channel</span>
-                            <span class="task-reward">+3 $STAR</span>
-                        </div>
-                    </div>
-                    <a href="https://t.me/your_channel1" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Ad Channel Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">campaign</span>
-                        <div class="task-text">
-                            <span>Join Partner Channel</span>
-                            <span class="task-reward">+3 $STAR</span>
-                        </div>
-                    </div>
-                    <a href="https://t.me/your_ad_channel" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Ad Instagram Task -->
-                <div class="task-pill">
-                    <div class="task-info">
-                        <span class="material-icons">photo_camera</span>
-                        <div class="task-text">
-                            <span>Follow Partner Instagram</span>
-                            <span class="task-reward">+4 $STAR</span>
-                        </div>
-                    </div>
-                    <a href="https://instagram.com/your_ad_page" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
-                </div>
-
-                <!-- Coming Soon Pill -->
-                <div class="task-pill disabled">
-                    <div class="task-info">
-                        <span class="material-icons">update</span>
-                        <div class="task-text">
-                            <span>More tasks coming soon...</span>
-                            <span class="task-reward text-gray-400">Stay tuned!</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Tasks will be generated dynamically by generateTaskPills() -->
             </div>
 
             <button class="wallet-button back-button mt-4" onclick="closeTasksModal()">
@@ -1207,6 +1138,7 @@
         function openTasksModal() {
             document.querySelector('.glass-card').style.display = 'none';
             document.getElementById('tasksModal').style.display = 'block';
+            generateTaskPills();
         }
 
         function closeTasksModal() {
@@ -1627,32 +1559,48 @@
             }
             
             if (!button.classList.contains('verifying')) {
-                // First click - open link
+                // First click - open link and change button to verify
                 window.open(link, '_blank');
-                button.innerHTML = `
-                    <span class="material-icons">verified</span>
-                    Verify
-                `;
-                button.classList.add('verifying');
-            } else {
-                // Second click - verify
-                button.innerHTML = `
-                    <div class="button-loader"></div>
-                    Verifying
-                `;
-                
-                // Add small delay to show loading
+                setTimeout(() => {
+                    button.innerHTML = `
+                        <span class="material-icons">verified</span>
+                        Verify
+                    `;
+                    button.classList.add('verifying');
+                }, 500); // Small delay to ensure link opens first
+                return; // Exit function after first click
+            }
+            
+            // Second click (Verify) - show loading
+            button.innerHTML = `
+                <div class="button-loader"></div>
+                Verifying
+            `;
+            
+            try {
+                // Add small delay to show loading animation
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
-                // Complete the task
+                // Record task completion in database
                 await handleTaskCompletion(taskType);
                 
-                // Update button state
+                // Update button to completed state
                 button.classList.remove('verifying');
                 button.classList.add('completed');
                 button.innerHTML = `
                     <span class="material-icons">check_circle</span>
                     Completed
+                `;
+                
+                // Refresh task list to show in completed section
+                await generateTaskPills();
+            } catch (error) {
+                console.error('Error completing task:', error);
+                // Reset button if there's an error
+                button.classList.remove('verifying');
+                button.innerHTML = `
+                    <span class="material-icons">error</span>
+                    Try Again
                 `;
             }
         }

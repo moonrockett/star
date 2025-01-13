@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             try {
@@ -591,6 +592,55 @@
             background: #2e7d32;
             cursor: default;
         }
+
+        .button-loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: button-spin 1s linear infinite;
+        }
+
+        @keyframes button-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .completed-tasks-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .warning-text {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #ffd700;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .completed-task-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            opacity: 0.7;
+        }
+
+        .completed-reward {
+            margin-left: auto;
+            color: #ffd700;
+        }
+
+        .task-button.verifying {
+            background: #4a4a4a;
+        }
     </style>
 </head>
 <body>
@@ -970,8 +1020,8 @@
             // Task Links
             links: {
                 twitter: "https://x.com/TelegramStarbot",
-                telegram: "https://t.me/Star_voyage",
-                adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
+                telegram: "t.me/Star_voyage",
+                adChannel: "t.me/Binanceredpacketfreerewardclaim",
                 adInstagram: "https://www.instagram.com/cryptolordkings"
             },
             
@@ -992,14 +1042,19 @@
             }
         };
 
-        // Initialize variables and get URL parameters
+        // Get user data from Telegram WebApp
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
         const urlParams = new URLSearchParams(window.location.search);
+
         const userData = {
-            userName: decodeURIComponent(urlParams.get('username') || 'Unknown User'),
-            referralCount: parseInt(urlParams.get('referrals') || '0'),
-            // Calculate stars based on referrals (1 star per referral)
-            starsEarned: parseInt(urlParams.get('referrals') || '0'),
-            refLink: decodeURIComponent(urlParams.get('ref_link') || '#')
+            userName: tgUser?.username || tgUser?.first_name || 'Unknown User',
+            telegramId: tgUser?.id,
+            photoUrl: tgUser?.photo_url,
+            languageCode: tgUser?.language_code,
+            // Get these from URL parameters sent by bot
+            refLink: urlParams.get('ref_link'),
+            referredBy: urlParams.get('referred_by'),
+            joinedDate: urlParams.get('joined_date')
         };
 
         let currentStars = 50;
@@ -1063,7 +1118,8 @@
         document.getElementById('dashUsername').textContent = userData.userName;
         document.getElementById('dashStars').textContent = userData.starsEarned;
         document.getElementById('dashReferrals').textContent = userData.referralCount;
-        document.getElementById('dashRefLink').textContent = userData.refLink;
+        document.getElementById('dashRefLink').textContent = 
+            `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
 
         // Copy functionality
         function copyRefLink() {
@@ -1195,7 +1251,7 @@
             
             tasks.forEach(task => {
                 taskHtml += `
-                    <div class="task-pill ${task.completed ? 'completed' : ''}">
+                    <div class="task-pill ${task.completed ? 'completed' : ''}" id="task-${task.task_type}">
                         <div class="task-info">
                             <span class="material-icons">${getTaskIcon(task.task_type)}</span>
                             <div class="task-text">
@@ -1206,27 +1262,39 @@
                         <a href="${APP_CONFIG.links[task.task_type]}" 
                            target="_blank" 
                            class="task-button ${task.completed ? 'completed' : ''}"
-                           onclick="event.preventDefault(); window.open('${APP_CONFIG.links[task.task_type]}', '_blank'); ${task.completed ? '' : `handleTaskCompletion('${task.task_type}')`};"
+                           onclick="handleTaskClick('${task.task_type}', '${APP_CONFIG.links[task.task_type]}', this);"
                         >
-                            <span class="material-icons">arrow_forward</span>
-                            ${task.completed ? 'Done' : 'Go'}
+                            <span class="material-icons">
+                               ${task.completed ? 'check_circle' : 'arrow_forward'}
+                            </span>
+                            ${task.completed ? 'Completed' : 'Go'}
                         </a>
                     </div>
                 `;
             });
 
-            // Add the "coming soon" pill
-            taskHtml += `
-                <div class="task-pill disabled">
-                    <div class="task-info">
-                        <span class="material-icons">update</span>
-                        <div class="task-text">
-                            <span>More tasks coming soon...</span>
-                            <span class="task-reward text-gray-400">Stay tuned!</span>
+            // Add completed tasks section
+            const completedTasks = tasks.filter(t => t.completed);
+            if (completedTasks.length > 0) {
+                taskHtml += `
+                    <div class="completed-tasks-section">
+                        <h3>Completed Tasks</h3>
+                        <div class="warning-text">
+                            <span class="material-icons">warning</span>
+                            Undoing any task (unfollowing, leaving channels) will result in forfeiture of earnings
+                        </div>
+                        <div class="completed-tasks-list">
+                            ${completedTasks.map(task => `
+                                <div class="completed-task-item">
+                                    <span class="material-icons">${getTaskIcon(task.task_type)}</span>
+                                    <span>${task.task_name}</span>
+                                    <span class="completed-reward">+${task.stars_reward} $STAR</span>
+                                </div>
+                            `).join('')}
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
 
             tasksContainer.innerHTML = taskHtml;
         }
@@ -1310,20 +1378,11 @@
 
         // Add this to your initialization code
         async function initializeUser() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const telegramId = urlParams.get('telegram_id');
-            const username = urlParams.get('username');
-            const refLink = urlParams.get('ref_link');
-            const referredBy = urlParams.get('referred_by');
-            const joinedDate = urlParams.get('joined_date');
-            const appLink = window.location.href;
-            
-            if (!telegramId || !username) {
-                console.log('No user parameters found, waiting for bot interaction');
+            const telegramId = userData.telegramId;
+            if (!telegramId) {
+                console.log('No Telegram WebApp data found');
                 return;
             }
-            
-            console.log('Checking for existing user:', telegramId);
             
             try {
                 // First check if user exists
@@ -1334,44 +1393,53 @@
                     .single();
 
                 if (existingUser) {
-                    console.log('Existing user found, updating data:', existingUser);
-                    // Update if any data changed
-                    if (existingUser.username !== username || 
-                        existingUser.ref_link !== refLink || 
-                        existingUser.app_link !== appLink) {
-                        const { data, error } = await supabase
+                    console.log('Existing user found:', existingUser);
+                    // Update only if username changed
+                    if (existingUser.username !== userData.userName) {
+                        const { error } = await supabase
                             .from('users')
                             .update({
-                                username: username,
-                                ref_link: refLink,
-                                app_link: appLink
+                                username: userData.userName,
+                                photo_url: userData.photoUrl,
+                                language_code: userData.languageCode
                             })
                             .eq('telegram_id', telegramId);
 
                         if (error) throw error;
                     }
                 } else {
-                    console.log('Creating new user:', { telegramId, username });
-                    // Create new user
-                    const { data, error } = await supabase
+                    // Create new user with referral data from URL
+                    const { error } = await supabase
                         .from('users')
                         .insert([{
                             telegram_id: telegramId,
-                            username: username,
+                            username: userData.userName,
+                            photo_url: userData.photoUrl,
+                            language_code: userData.languageCode,
                             stars_earned: 0,
-                            ref_link: refLink,
-                            referred_by: referredBy,
-                            joined_date: joinedDate || new Date().toISOString(),
-                            app_link: appLink
+                            ref_link: userData.refLink,        // From bot's URL
+                            referred_by: userData.referredBy,  // From bot's URL
+                            joined_date: userData.joinedDate || new Date().toISOString()
                         }]);
 
                     if (error) throw error;
                 }
 
-                // Load user data
+                // Load user data and tasks
                 await loadUserHistory(telegramId);
                 await loadUserTasks(telegramId);
-                console.log('User data loaded successfully');
+                
+                // Get referral count from database
+                const { data: referralCount } = await supabase
+                    .from('users')
+                    .select('count')
+                    .eq('referred_by', telegramId);
+                
+                // Update UI with actual referral count
+                document.getElementById('dashReferrals').textContent = referralCount?.length || 0;
+                // Use ref_link from URL for referral link display
+                document.getElementById('dashRefLink').textContent = userData.refLink || '';
+
             } catch (error) {
                 console.error('Error in user initialization:', error);
             }
@@ -1379,7 +1447,8 @@
 
         function updateReferralUI(referralData) {
             document.getElementById('dashReferrals').textContent = referralData.count;
-            document.getElementById('dashRefLink').textContent = referralData.refLink;
+            document.getElementById('dashRefLink').textContent = 
+                `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
         }
 
         // Call this when the page loads
@@ -1547,6 +1616,45 @@
             star.addEventListener('animationend', () => {
                 star.remove();
             });
+        }
+
+        // Add new function to handle task button clicks
+        async function handleTaskClick(taskType, link, button) {
+            event.preventDefault();
+            
+            if (button.classList.contains('completed')) {
+                return; // Already completed
+            }
+            
+            if (!button.classList.contains('verifying')) {
+                // First click - open link
+                window.open(link, '_blank');
+                button.innerHTML = `
+                    <span class="material-icons">verified</span>
+                    Verify
+                `;
+                button.classList.add('verifying');
+            } else {
+                // Second click - verify
+                button.innerHTML = `
+                    <div class="button-loader"></div>
+                    Verifying
+                `;
+                
+                // Add small delay to show loading
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Complete the task
+                await handleTaskCompletion(taskType);
+                
+                // Update button state
+                button.classList.remove('verifying');
+                button.classList.add('completed');
+                button.innerHTML = `
+                    <span class="material-icons">check_circle</span>
+                    Completed
+                `;
+            }
         }
     </script>
 </body>

@@ -518,6 +518,52 @@
         .task-pill.disabled .task-info {
             color: #666;
         }
+
+        .countdown-pill {
+            background: rgba(218, 165, 32, 0.1);
+            border: 1px solid rgba(218, 165, 32, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+        }
+
+        .countdown-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .countdown-text {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: goldenrod;
+            font-size: 14px;
+        }
+
+        .countdown-timer {
+            text-align: center;
+        }
+
+        .countdown-numbers {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            font-family: monospace;
+        }
+
+        .countdown-labels {
+            display: flex;
+            justify-content: space-around;
+            color: #666;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .countdown-labels span {
+            width: 50px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -544,6 +590,25 @@
                 <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
                 <p class="text-gray-300 mb-1">Purchase Telegram stars using TON</p>
                 <p class="text-sm text-golden-accent">No KYC required</p>
+            </div>
+
+            <!-- Add this after the title section and before the Buy Section -->
+            <div class="countdown-pill mb-8">
+                <div class="countdown-content">
+                    <div class="countdown-text">
+                        <span class="material-icons">rocket_launch</span>
+                        <span>Airdrop starts in</span>
+                    </div>
+                    <div class="countdown-timer">
+                        <div class="countdown-numbers" id="countdownDisplay">
+                            00:00
+                        </div>
+                        <div class="countdown-labels">
+                            <span>days</span>
+                            <span>hours</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Buy Section -->
@@ -876,9 +941,9 @@
             // Task Links
             links: {
                 twitter: "https://x.com/TelegramStarbot",
-                telegram: "https://t.me/your_channel1",
-                adChannel: "https://t.me/your_ad_channel",
-                adInstagram: "https://instagram.com/your_ad_page"
+                telegram: "https://t.me/Starearnairdropbot",
+                adChannel: "https://x.com/TelegramStarbot?t=sV9qoruobEFpT87WhnyTPQ&s=09",
+                adInstagram: "https://www.instagram.com/cryptolordkings?igsh=MWV4bXB1MDd4MDdiMw=="
             },
             
             // Task Rewards (in stars)
@@ -1094,24 +1159,48 @@
             document.querySelector('.glass-card').style.display = 'block';
         }
 
-        // Sample earn history data (you can replace this with actual data from URL parameters)
-        const earnHistory = [
-            { source: 'Referral Bonus', amount: 1, date: '2024-03-15' },
-            { source: 'Twitter Follow', amount: 5, date: '2024-03-14' },
-            { source: 'Telegram Join', amount: 3, date: '2024-03-13' }
-        ];
+        // Replace the earnHistory array and populateEarnHistory function with this:
 
-        // Function to populate earn history
+        function generateEarnHistory(referralCount) {
+            // Create an array of referral entries based on the count
+            const earnHistory = [];
+            
+            // Add an entry for each successful referral
+            for(let i = 0; i < referralCount; i++) {
+                earnHistory.push({
+                    source: 'Referral Bonus',
+                    amount: 1,  // 1 star per referral
+                    date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0] // Dates going backwards
+                });
+            }
+            
+            return earnHistory;
+        }
+
         function populateEarnHistory() {
             const historyContainer = document.getElementById('earnHistory');
             historyContainer.innerHTML = '';
+            
+            // Get referral count from URL parameters
+            const referralCount = parseInt(urlParams.get('referrals') || '0');
+            const history = generateEarnHistory(referralCount);
+            
+            if (history.length === 0) {
+                // Show message if no referrals yet
+                historyContainer.innerHTML = `
+                    <div class="history-item">
+                        <span class="history-item-text text-gray-400">No earnings yet</span>
+                    </div>
+                `;
+                return;
+            }
 
-            earnHistory.forEach(item => {
+            history.forEach(item => {
                 const historyItem = document.createElement('div');
                 historyItem.className = 'history-item';
                 historyItem.innerHTML = `
                     <span class="history-item-text">${item.source}</span>
-                    <span class="history-item-amount">+${item.amount} Stars</span>
+                    <span class="history-item-amount">+${item.amount} Star</span>
                 `;
                 historyContainer.appendChild(historyItem);
             });
@@ -1199,6 +1288,31 @@
 
         // Call this when initializing the app
         generateTaskPills();
+
+        // Add this with your other initialization code
+        function updateCountdown() {
+            const airdropDate = new Date('2025-02-15T00:00:00Z');
+            const now = new Date();
+            const difference = airdropDate - now;
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                // Format numbers to always show two digits
+                const formattedDays = String(days).padStart(2, '0');
+                const formattedHours = String(hours).padStart(2, '0');
+                
+                document.getElementById('countdownDisplay').textContent = 
+                    `${formattedDays}:${formattedHours}`;
+            } else {
+                document.getElementById('countdownDisplay').textContent = "LIVE!";
+            }
+        }
+
+        // Update countdown every hour
+        updateCountdown();
+        setInterval(updateCountdown, 1000 * 60 * 60);
     </script>
 </body>
 </html>

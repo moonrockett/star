@@ -1196,7 +1196,8 @@
                         <a href="${APP_CONFIG.links[taskType]}" 
                            target="_blank" 
                            class="task-button"
-                           onclick="handleTaskCompletion('${taskType}')">
+                           onclick="event.preventDefault(); window.open('${APP_CONFIG.links[taskType]}', '_blank'); handleTaskCompletion('${taskType}');"
+                        >
                             <span class="material-icons">arrow_forward</span>
                             Go
                         </a>
@@ -1279,16 +1280,17 @@
         // Add this function to handle task completion
         async function handleTaskCompletion(taskType) {
             const telegramId = urlParams.get('telegram_id');
+            // If no telegram_id, just open the link without recording
             if (!telegramId) {
-                alert('Error: No Telegram ID provided');
-                return;
+                return; // Just open the link, don't try to record the task
             }
 
             const reward = APP_CONFIG.rewards[taskType];
             const result = await DB.recordTaskCompletion(telegramId, taskType, reward);
             
             if (result && result.error) {
-                alert('You have already completed this task!');
+                // Silently handle already completed tasks
+                console.log('Task already completed');
                 return;
             }
 

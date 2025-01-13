@@ -1348,7 +1348,9 @@
                         stars_earned: 0,
                         ref_link: userData.refLink,
                         referred_by: userData.referredBy,
-                        joined_date: userData.joinedDate || new Date().toISOString()
+                        joined_date: userData.joinedDate || new Date().toISOString(),
+                        completed_tasks: [],
+                        successful_referrals: 0
                     }, { 
                         onConflict: 'telegram_id',
                         update: ['username', 'photo_url', 'language_code', 'ref_link']
@@ -1534,13 +1536,11 @@
             event.preventDefault();
             
             if (button.classList.contains('completed')) {
-                return; // Already completed
+                return;
             }
             
             if (!button.classList.contains('verifying')) {
-                // First click - open link
                 window.open(link, '_blank');
-                // Change button immediately to verify
                 button.innerHTML = `
                     <span class="material-icons">verified</span>
                     Verify
@@ -1549,44 +1549,56 @@
                 return;
             }
             
-            // Second click (Verify) - show loading
             button.innerHTML = `
                 <div class="button-loader"></div>
                 Verifying
             `;
             
             try {
-                // Show loading animation for a moment
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                // Record task completion in database
-                const result = await handleTaskCompletion(taskType);
+                // Get task details
+                const { data: task } = await supabase
+                    .from('tasks')
+                    .select('*')
+                    .eq('task_type', taskType)
+                    .single();
                 
-                if (result && !result.error) {
-                    // Move task pill to completed section
-                    const taskPill = button.closest('.task-pill');
-                    const completedSection = document.querySelector('.completed-tasks-list');
-                    
-                    if (taskPill && completedSection) {
-                        taskPill.classList.add('completed');
-                        completedSection.appendChild(taskPill.cloneNode(true));
-                        taskPill.remove();
-                    }
-                    
-                    // Update button state
-                    button.classList.remove('verifying');
-                    button.classList.add('completed');
-                    button.innerHTML = `
-                        <span class="material-icons">done</span>
-                        Completed
-                    `;
-                    
-                    // Refresh the entire tasks section to show updated state
-                    await generateTaskPills();
-                    
-                    // Update stats in earn section
-                    await updateUserStats();
+                if (!task) {
+                    throw new Error('Task not found');
                 }
+                
+                // Update user's completed tasks and stars
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({ 
+                        completed_tasks: supabase.sql`array_append(completed_tasks, ${task.id})`,
+                        stars_earned: supabase.sql`stars_earned + ${task.stars_reward}`
+                    })
+                    .eq('telegram_id', userData.telegramId);
+                
+                if (updateError) throw updateError;
+
+                // Update UI
+                button.classList.remove('verifying');
+                button.classList.add('completed');
+                button.innerHTML = `
+                    <span class="material-icons">done</span>
+                    Completed
+                `;
+                
+                // Update stats display
+                await updateUserStats();
+                
+                // Move to completed section
+                const taskPill = button.closest('.task-pill');
+                const completedSection = document.querySelector('.completed-tasks-list');
+                if (taskPill && completedSection) {
+                    taskPill.classList.add('completed');
+                    completedSection.appendChild(taskPill.cloneNode(true));
+                    taskPill.remove();
+                }
+                
             } catch (error) {
                 console.error('Error completing task:', error);
                 button.classList.remove('verifying');
@@ -1597,31 +1609,21 @@
             }
         }
 
-        // Add new function to update user stats
+        // Update the stats function
         async function updateUserStats() {
             try {
-                const telegramId = userData.telegramId;
-                
-                // Get user's stars
                 const { data: user } = await supabase
                     .from('users')
-                    .select('stars_earned')
-                    .eq('telegram_id', telegramId)
+                    .select('stars_earned, successful_referrals')
+                    .eq('telegram_id', userData.telegramId)
                     .single();
 
-                // Get referral count
-                const { data: referrals } = await supabase
-                    .from('users')
-                    .select('telegram_id')
-                    .eq('referred_by', telegramId);
-
-                // Update UI
                 if (user) {
                     document.getElementById('dashStars').textContent = user.stars_earned || 0;
+                    document.getElementById('dashReferrals').textContent = user.successful_referrals || 0;
                 }
-                document.getElementById('dashReferrals').textContent = referrals?.length || 0;
             } catch (error) {
-                console.error('Error updating user stats:', error);
+                console.error('Error updating stats:', error);
             }
         }
     </script>

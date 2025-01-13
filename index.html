@@ -473,6 +473,51 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(218, 165, 32, 0.3);
         }
+
+        .task-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-reward {
+            font-size: 12px;
+            color: goldenrod;
+        }
+
+        .earn-history {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(218, 165, 32, 0.15);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .history-item-text {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .history-item-amount {
+            color: goldenrod;
+            font-weight: 500;
+        }
+
+        .task-pill.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .task-pill.disabled .task-info {
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -571,6 +616,24 @@
                         <button class="copy-button" onclick="copyRefLink()">
                             <span class="material-icons text-gray-300">content_copy</span>
                         </button>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <button class="primary-button opacity-50 cursor-not-allowed" disabled>
+                        <span class="material-icons">account_balance_wallet</span>
+                        Withdraw Stars
+                    </button>
+                    <p class="text-center text-sm text-gray-400 mt-2">Coming Soon</p>
+                </div>
+
+                <div class="earn-history mt-8">
+                    <p class="text-gray-400 flex items-center gap-2 mb-4">
+                        <span class="material-icons">history</span>
+                        Earn History
+                    </p>
+                    <div class="history-container space-y-2" id="earnHistory">
+                        <!-- History items will be populated by JavaScript -->
                     </div>
                 </div>
 
@@ -723,63 +786,71 @@
                 <div class="task-pill">
                     <div class="task-info">
                         <span class="material-icons">flutter_dash</span>
-                        <span>Follow Star Shop on X (Twitter)</span>
+                        <div class="task-text">
+                            <span>Follow Star Shop on X (Twitter)</span>
+                            <span class="task-reward">+5 Stars</span>
+                        </div>
                     </div>
-                    <!-- SET YOUR X/TWITTER LINK HERE -->
-                    <a href="https://x.com/your_profile" target="_blank" class="task-button">
+                    <a href="https://x.com/TelegramStarbot" target="_blank" class="task-button">
                         <span class="material-icons">arrow_forward</span>
                         Go
                     </a>
                 </div>
 
-                <!-- Telegram Channel Tasks -->
+                <!-- Telegram Channel Task -->
                 <div class="task-pill">
                     <div class="task-info">
                         <span class="material-icons">telegram</span>
-                        <span>Join Telegram Channel #1</span>
+                        <div class="task-text">
+                            <span>Join Official Telegram Channel</span>
+                            <span class="task-reward">+3 Stars</span>
+                        </div>
                     </div>
-                    <!-- SET YOUR TELEGRAM CHANNEL 1 LINK HERE -->
                     <a href="https://t.me/your_channel1" target="_blank" class="task-button">
                         <span class="material-icons">arrow_forward</span>
                         Go
                     </a>
                 </div>
 
+                <!-- Ad Channel Task -->
                 <div class="task-pill">
                     <div class="task-info">
-                        <span class="material-icons">telegram</span>
-                        <span>Join Telegram Channel #2</span>
+                        <span class="material-icons">campaign</span>
+                        <div class="task-text">
+                            <span>Join Partner Channel</span>
+                            <span class="task-reward">+3 Stars</span>
+                        </div>
                     </div>
-                    <!-- SET YOUR TELEGRAM CHANNEL 2 LINK HERE -->
-                    <a href="https://t.me/your_channel2" target="_blank" class="task-button">
+                    <a href="https://t.me/your_ad_channel" target="_blank" class="task-button">
                         <span class="material-icons">arrow_forward</span>
                         Go
                     </a>
                 </div>
 
-                <!-- Instagram Tasks -->
+                <!-- Ad Instagram Task -->
                 <div class="task-pill">
                     <div class="task-info">
                         <span class="material-icons">photo_camera</span>
-                        <span>Follow Instagram Page #1</span>
+                        <div class="task-text">
+                            <span>Follow Partner Instagram</span>
+                            <span class="task-reward">+4 Stars</span>
+                        </div>
                     </div>
-                    <!-- SET YOUR INSTAGRAM PAGE 1 LINK HERE -->
-                    <a href="https://instagram.com/your_page1" target="_blank" class="task-button">
+                    <a href="https://instagram.com/your_ad_page" target="_blank" class="task-button">
                         <span class="material-icons">arrow_forward</span>
                         Go
                     </a>
                 </div>
 
-                <div class="task-pill">
+                <!-- Coming Soon Pill -->
+                <div class="task-pill disabled">
                     <div class="task-info">
-                        <span class="material-icons">photo_camera</span>
-                        <span>Follow Instagram Page #2</span>
+                        <span class="material-icons">update</span>
+                        <div class="task-text">
+                            <span>More tasks coming soon...</span>
+                            <span class="task-reward text-gray-400">Stay tuned!</span>
+                        </div>
                     </div>
-                    <!-- SET YOUR INSTAGRAM PAGE 2 LINK HERE -->
-                    <a href="https://instagram.com/your_page2" target="_blank" class="task-button">
-                        <span class="material-icons">arrow_forward</span>
-                        Go
-                    </a>
                 </div>
             </div>
 
@@ -792,6 +863,41 @@
 
     <!-- Keep all the scripts from working perfect.html and add the functionality from star/index.html -->
     <script>
+        // ==============================================
+        // CONFIGURABLE VARIABLES
+        // ==============================================
+
+        // App Configuration
+        const APP_CONFIG = {
+            // Wallet Details
+            tonWallet: "UQAV7UvOjM6o2rbU54To9V3GgmFUujbvCczOKB_nYFJwl9CS",
+            supportLink: "https://t.me/Starshopsupport",
+            
+            // Task Links
+            links: {
+                twitter: "https://x.com/TelegramStarbot",
+                telegram: "https://t.me/your_channel1",
+                adChannel: "https://t.me/your_ad_channel",
+                adInstagram: "https://instagram.com/your_ad_page"
+            },
+            
+            // Task Rewards (in stars)
+            rewards: {
+                twitter: 10,     // Stars for following on Twitter/X
+                telegram: 5,    // Stars for joining Telegram
+                adChannel: 3,   // Stars for joining ad channel
+                adInstagram: 3  // Stars for following ad Instagram
+            },
+            
+            // Task Display Names
+            taskNames: {
+                twitter: "Follow Star Shop on X (Twitter)",
+                telegram: "Join Official Telegram Channel",
+                adChannel: "Join Partner Channel",
+                adInstagram: "Follow Partner Instagram"
+            }
+        };
+
         // Initialize starfield and animations
         function createStarfield() {
             const starfield = document.getElementById('starfield');
@@ -987,6 +1093,112 @@
             document.getElementById('tasksModal').style.display = 'none';
             document.querySelector('.glass-card').style.display = 'block';
         }
+
+        // Sample earn history data (you can replace this with actual data from URL parameters)
+        const earnHistory = [
+            { source: 'Referral Bonus', amount: 1, date: '2024-03-15' },
+            { source: 'Twitter Follow', amount: 5, date: '2024-03-14' },
+            { source: 'Telegram Join', amount: 3, date: '2024-03-13' }
+        ];
+
+        // Function to populate earn history
+        function populateEarnHistory() {
+            const historyContainer = document.getElementById('earnHistory');
+            historyContainer.innerHTML = '';
+
+            earnHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <span class="history-item-text">${item.source}</span>
+                    <span class="history-item-amount">+${item.amount} Stars</span>
+                `;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // Call this function when initializing the app
+        populateEarnHistory();
+
+        // Update the tasks container generation
+        function generateTaskPills() {
+            const tasksContainer = document.querySelector('.tasks-container');
+            tasksContainer.innerHTML = `
+                <!-- Twitter/X Task -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">flutter_dash</span>
+                        <div class="task-text">
+                            <span>${APP_CONFIG.taskNames.twitter}</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.twitter} Stars</span>
+                        </div>
+                    </div>
+                    <a href="${APP_CONFIG.links.twitter}" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Telegram Channel Task -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">telegram</span>
+                        <div class="task-text">
+                            <span>${APP_CONFIG.taskNames.telegram}</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.telegram} Stars</span>
+                        </div>
+                    </div>
+                    <a href="${APP_CONFIG.links.telegram}" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Ad Channel Task -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">campaign</span>
+                        <div class="task-text">
+                            <span>${APP_CONFIG.taskNames.adChannel}</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.adChannel} Stars</span>
+                        </div>
+                    </div>
+                    <a href="${APP_CONFIG.links.adChannel}" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Ad Instagram Task -->
+                <div class="task-pill">
+                    <div class="task-info">
+                        <span class="material-icons">photo_camera</span>
+                        <div class="task-text">
+                            <span>${APP_CONFIG.taskNames.adInstagram}</span>
+                            <span class="task-reward">+${APP_CONFIG.rewards.adInstagram} Stars</span>
+                        </div>
+                    </div>
+                    <a href="${APP_CONFIG.links.adInstagram}" target="_blank" class="task-button">
+                        <span class="material-icons">arrow_forward</span>
+                        Go
+                    </a>
+                </div>
+
+                <!-- Coming Soon Pill -->
+                <div class="task-pill disabled">
+                    <div class="task-info">
+                        <span class="material-icons">update</span>
+                        <div class="task-text">
+                            <span>More tasks coming soon...</span>
+                            <span class="task-reward text-gray-400">Stay tuned!</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Call this when initializing the app
+        generateTaskPills();
     </script>
 </body>
 </html>

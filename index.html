@@ -26,14 +26,40 @@
             joinedDate: urlParams.get('joined_date')
         };
 
+        // Validate required parameters
+        function validateUserData() {
+            if (!userData.telegramId) {
+                console.error('Missing telegram_id parameter');
+                return false;
+            }
+            if (!userData.username) {
+                console.error('Missing username parameter');
+                return false;
+            }
+            return true;
+        }
+
         // Initialize app with error handling and retries
         let initializationAttempts = 0;
         const MAX_INIT_ATTEMPTS = 3;
 
+        // Show/hide loading overlay
+        function toggleLoading(show) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = show ? 'flex' : 'none';
+                loadingOverlay.style.opacity = show ? '1' : '0';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             async function attemptInitialization() {
                 try {
+                    toggleLoading(true);
                     console.log('Attempting initialization...');
+                    if (!validateUserData()) {
+                        throw new Error('Missing required parameters');
+                    }
                     if (!supabaseClient) throw new Error('Supabase client not available');
 
                     // Simple check if user exists
@@ -51,16 +77,16 @@
                                 telegram_id: userData.telegramId,
                                 username: userData.username,
                                 ref_link: userData.refLink,
-                                joined_date: userData.joinedDate
+                                joined_date: userData.joinedDate || new Date().toISOString()
                             }]);
                     }
 
                     console.log('Initialization successful');
-
-                    // Update UI elements after successful initialization
                     updateUIElements();
+                    toggleLoading(false);
                 } catch (error) {
                     console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
+                    toggleLoading(false);
                     if (++initializationAttempts < MAX_INIT_ATTEMPTS) {
                         console.log(`Retrying in 1 second... (Attempt ${initializationAttempts + 1}/${MAX_INIT_ATTEMPTS})`);
                         setTimeout(attemptInitialization, 1000);

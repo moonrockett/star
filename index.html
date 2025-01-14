@@ -56,6 +56,24 @@
                     }
 
                     console.log('Initialization successful');
+
+                    // Update the UI after successful initialization
+                    const comingSoonSection = document.getElementById('coming-soon');
+                    if (comingSoonSection) {
+                        comingSoonSection.innerHTML = `
+                            <h2>More tasks to earn $STAR coming soon!</h2>
+                            <p>Stay tuned for more opportunities!</p>
+                        `;
+                    }
+
+                    // Remove loading overlay
+                    const loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) {
+                        loadingOverlay.style.opacity = '0';
+                        setTimeout(() => {
+                            loadingOverlay.style.display = 'none';
+                        }, 300);
+                    }
                 } catch (error) {
                     console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
                     if (++initializationAttempts < MAX_INIT_ATTEMPTS) {

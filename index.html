@@ -1511,33 +1511,6 @@
             document.querySelector('.glass-card').style.display = 'block';
         }
 
-        // Replace the earnHistory array and populateEarnHistory function with this:
-
-        async function loadUserHistory(telegramId) {
-            const historyContainer = document.getElementById('earnHistory');
-            const tasks = await DB.getUserTasks(telegramId);
-            
-            if (tasks.length === 0) {
-                historyContainer.innerHTML = `
-                    <div class="history-item">
-                        <span class="history-item-text text-gray-400">No earnings yet</span>
-                    </div>
-                `;
-                return;
-            }
-
-            historyContainer.innerHTML = '';
-            tasks.forEach(task => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <span class="history-item-text">${task.task_type}</span>
-                    <span class="history-item-amount">+${task.stars_earned} $STAR</span>
-                `;
-                historyContainer.appendChild(historyItem);
-            });
-        }
-
         // Update the tasks container generation
         async function generateTaskPills() {
             const tasksContainer = document.querySelector('.tasks-container');
@@ -1757,7 +1730,6 @@
                 document.getElementById('dashStars').textContent = user.stars_earned;
             }
 
-            await loadUserHistory(telegramId);
             return result;
         }
 
@@ -1817,7 +1789,6 @@
                     userData.refLink || `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
 
                 // Load task history
-                await loadUserHistory(telegramId);
                 await generateTaskPills();
 
             } catch (error) {

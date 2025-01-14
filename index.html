@@ -1389,6 +1389,15 @@
         });
 
         // Payment modal functions
+        function calculatePrice(stars) {
+            // Apply 30% discount for orders over 500 stars
+            const basePrice = stars * 0.0026;
+            if (stars >= 500) {
+                return (basePrice * 0.7).toFixed(2); // 30% discount
+            }
+            return basePrice.toFixed(2);
+        }
+
         function generateOrderId() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
@@ -1402,7 +1411,8 @@
             document.querySelector('.glass-card').style.display = 'none';
             const modal = document.getElementById('paymentModal');
             modal.style.display = 'block';
-            document.getElementById('paymentAmount').textContent = calculatePrice(currentStars) + ' TON';
+            const price = calculatePrice(currentStars);
+            document.getElementById('paymentAmount').textContent = `${price} TON`;
             document.getElementById('starsQuantity').textContent = currentStars + ' Stars';
         }
 

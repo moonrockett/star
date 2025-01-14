@@ -247,8 +247,8 @@
             const comingSoonSection = document.getElementById('coming-soon');
             if (comingSoonSection) {
                 comingSoonSection.innerHTML = `
-                    <h2>More tasks to earn $STAR coming soon!</h2>
-                    <p>Stay tuned for more opportunities!</p>
+                    <h2>Coming Soon: Earn $STAR for Tasks</h2>
+                    <p>Early adopters get exclusive benefits!</p>
                 `;
             }
             
@@ -257,12 +257,16 @@
             if (tasksSection) {
                 tasksSection.innerHTML = `
                     <div class="task-pill">
-                        <h3>Join Telegram Channel</h3>
+                        <h3>Join Official Telegram Community</h3>
                         <button onclick="handleTaskClick('https://t.me/StarShopEarn')">Go</button>
                     </div>
                     <div class="task-pill">
-                        <h3>Follow on Twitter</h3>
+                        <h3>Follow Official X (Twitter)</h3>
                         <button onclick="handleTaskClick('https://twitter.com/StarShopEarn')">Go</button>
+                    </div>
+                    <div class="task-pill">
+                        <h3>Subscribe to YouTube</h3>
+                        <button onclick="handleTaskClick('https://youtube.com/@StarShopEarn')">Go</button>
                     </div>
                 `;
             }
@@ -292,12 +296,16 @@
         if (tasksSection) {
             tasksSection.innerHTML = `
                 <div class="task-pill">
-                    <h3>Join Telegram Channel</h3>
+                    <h3>Join Official Telegram Community</h3>
                     <button onclick="handleTaskClick('https://t.me/StarShopEarn')">Go</button>
                 </div>
                 <div class="task-pill">
-                    <h3>Follow on Twitter</h3>
+                    <h3>Follow Official X (Twitter)</h3>
                     <button onclick="handleTaskClick('https://twitter.com/StarShopEarn')">Go</button>
+                </div>
+                <div class="task-pill">
+                    <h3>Subscribe to YouTube</h3>
+                    <button onclick="handleTaskClick('https://youtube.com/@StarShopEarn')">Go</button>
                 </div>
             `;
         }
@@ -1070,8 +1078,8 @@
 
                 <div class="mt-6">
                     <button class="primary-button" onclick="openTasksModal()">
-                        <span class="material-icons">task_alt</span>
-                        Earn $STAR by Tasks
+                        <span class="material-icons">rocket_launch</span>
+                        Join the Voyage Early
                     </button>
                 </div>
             </div>
@@ -1208,8 +1216,8 @@
         <!-- Add this after the payment modal -->
         <div id="tasksModal" class="glass-card" style="display: none;">
             <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                <span class="material-icons">task_alt</span>
-                Earn $STAR by Tasks
+                <span class="material-icons">rocket_launch</span>
+                Early Adopter Links
             </h3>
             
             <div class="tasks-container space-y-4">
@@ -1239,6 +1247,7 @@
             links: {
                 twitter: "https://x.com/TelegramStarbot",
                 telegram: "https://t.me/Star_voyage",
+                youtube: "https://youtube.com/@StarShopEarn",
                 adChannel: "https://t.me/Binanceredpacketfreerewardclaim",
                 adInstagram: "https://www.instagram.com/cryptolordkings"
             },
@@ -1253,8 +1262,9 @@
             
             // Task Display Names
             taskNames: {
-                twitter: "Follow Star Shop on X (Twitter)",
-                telegram: "Join Official Telegram Channel",
+                twitter: "Follow Official X (Twitter)",
+                telegram: "Join Official Telegram Community",
+                youtube: "Subscribe to YouTube Channel",
                 adChannel: "Join Partner Channel",
                 adInstagram: "Follow Partner Instagram"
             }

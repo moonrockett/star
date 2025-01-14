@@ -1566,111 +1566,16 @@
 
         // Add new function to handle task button clicks
         async function handleTaskClick(taskType, link, button) {
-            if (button.classList.contains('completed')) {
-                console.log('Task already completed');
-                return;
-            }
-
-            if (!button.classList.contains('verifying')) {
-                window.open(link, '_blank');
-                button.innerHTML = `
-                    <span class="material-icons">verified</span>
-                    Verify
-                `;
-                button.classList.add('verifying');
-                return;
-            }
-
-            try {
-                button.innerHTML = `
-                    <div class="button-loader"></div>
-                    Verifying
-                `;
-
-                console.log('Starting task completion:', { taskType, telegramId: userData.telegramId });
-                
-                const [taskResponse, userResponse] = await Promise.all([
-                    supabaseClient.from('tasks')
-                        .select('*')
-                        .eq('task_type', taskType)
-                        .single(),
-                    supabaseClient.from('users')
-                        .select('*')
-                        .eq('telegram_id', userData.telegramId)
-                        .single()
-                ]);
-                
-                if (!taskResponse.data || !userResponse.data) {
-                    throw new Error('Could not find task or user data');
-                }
-
-                console.log('Task data:', taskResponse.data);
-                console.log('User data:', userResponse.data);
-
-                const task = taskResponse.data;
-                const user = userResponse.data;
-
-                if (user.completed_tasks?.includes(task.id)) {
-                    throw new Error('Task already completed');
-                }
-
-                // Update completed_tasks
-                const { error: updateError } = await supabaseClient
-                    .from('users')
-                    .update({ 
-                        completed_tasks: [...(user.completed_tasks || []), task.id]
-                    })
-                    .eq('telegram_id', userData.telegramId);
-                    
-                console.log('Update result:', updateError || 'Success');
-
-                if (updateError) throw updateError;
-
-                // Update UI to show completion
-                button.classList.remove('verifying');
-                button.classList.add('completed');
-                button.innerHTML = `
-                    <span class="material-icons">done</span>
-                    Completed
-                `;
-
-                // Refresh stats
-                await updateUserStats();
-
-            } catch (error) {
-                console.error('Task completion error:', error);
-                button.classList.remove('verifying');
-                button.innerHTML = `
-                    <span class="material-icons">error</span>
-                    ${error.message === 'Task already completed' ? 'Completed' : 'Try Again'}
-                `;
-                if (error.message === 'Task already completed') {
-                    button.classList.add('completed');
-                }
-            }
+            // Directly navigate to the link
+            window.open(link, '_blank');
         }
 
-        // Update the stats function to show both task and referral stars
-        async function updateUserStats() {
-            try {
-                const { data: user } = await supabaseClient
-                    .from('users')
-                    .select(`
-                        stars_earned,
-                        completed_tasks,
-                        (SELECT COUNT(*) FROM users WHERE referred_by = telegram_id) as referral_count
-                    `)
-                    .eq('telegram_id', userData.telegramId)
-                    .single();
-
-                if (user) {
-                    document.getElementById('dashStars').textContent = user.stars_earned || 0;
-                    document.getElementById('dashReferrals').textContent = user.referral_count || 0;
-                }
-            } catch (error) {
-                console.error('Error updating stats:', error);
-            }
-        }
+        // Update the UI to show a message for upcoming tasks
+        const comingSoonSection = document.getElementById('coming-soon');
+        comingSoonSection.innerHTML = `
+            <h2>More tasks to earn $STAR coming soon!</h2>
+            <p>Stay tuned for more opportunities!</p>
+        `;
     </script>
 </body>
 </html>

@@ -1536,31 +1536,9 @@
 
         // Add new function to handle task button clicks
         async function handleTaskClick(taskType, link, button) {
-            event.preventDefault();
-            
-            if (button.classList.contains('completed')) {
-                return;
-            }
-            
-            if (!button.classList.contains('verifying')) {
-                window.open(link, '_blank');
-                button.innerHTML = `
-                    <span class="material-icons">verified</span>
-                    Verify
-                `;
-                button.classList.add('verifying');
-                return;
-            }
-            
             try {
-                button.innerHTML = `
-                    <div class="button-loader"></div>
-                    Verifying
-                `;
+                console.log('Starting task completion:', { taskType, telegramId: userData.telegramId });
                 
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Get task details and current user data
                 const [taskResponse, userResponse] = await Promise.all([
                     supabaseClient.from('tasks')
                         .select('*')
@@ -1572,58 +1550,21 @@
                         .single()
                 ]);
                 
-                if (!taskResponse.data || !userResponse.data) {
-                    throw new Error('Could not find task or user data');
-                }
+                console.log('Task data:', taskResponse.data);
+                console.log('User data:', userResponse.data);
 
-                const task = taskResponse.data;
-                const user = userResponse.data;
-                
-                // Check if task is already completed
-                if (user.completed_tasks?.includes(task.id)) {
-                    throw new Error('Task already completed');
-                }
-                
-                // Create a copy of the task pill before updating
-                const taskPill = button.closest('.task-pill');
-                const completedSection = document.querySelector('.completed-tasks-list');
-                const taskPillClone = taskPill.cloneNode(true);
-                
-                // Update user's completed_tasks array
+                // Update completed_tasks
                 const { error: updateError } = await supabaseClient
                     .from('users')
                     .update({ 
                         completed_tasks: [...(user.completed_tasks || []), task.id]
                     })
                     .eq('telegram_id', userData.telegramId);
-                
-                if (updateError) throw updateError;
+                    
+                console.log('Update result:', updateError || 'Success');
 
-                // Move to completed section first
-                if (taskPill && completedSection) {
-                    taskPillClone.classList.add('completed');
-                    completedSection.appendChild(taskPillClone);
-                    taskPill.remove();
-                }
-
-                // Update UI
-                button.classList.remove('verifying');
-                button.classList.add('completed');
-                button.innerHTML = `
-                    <span class="material-icons">done</span>
-                    Completed
-                `;
-                
-                // Update stats
-                await updateUserStats();
-                
             } catch (error) {
-                console.error('Error completing task:', error);
-                button.classList.remove('verifying');
-                button.innerHTML = `
-                    <span class="material-icons">error</span>
-                    Try Again
-                `;
+                console.error('Task completion error:', error);
             }
         }
 

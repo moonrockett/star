@@ -11,23 +11,20 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Database interface - define before use
-        const DB = {
-            async initializeUser(userData) {
-                if (!supabaseClient) throw new Error('Supabase not initialized');
-                // ... rest of initialization code
-            },
-            async recordTaskCompletion(taskId, telegramId) {
-                if (!supabaseClient) throw new Error('Supabase not initialized');
-                // ... task completion code
-            }
-        };
-
         // Initialize Supabase client immediately
         const supabaseClient = supabase.createClient(
             'https://iolupdbwmpjtxhjdgbes.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
         );
+
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userData = {
+            telegramId: urlParams.get('telegram_id'),
+            username: urlParams.get('username'),
+            refLink: urlParams.get('ref_link'),
+            joinedDate: urlParams.get('joined_date')
+        };
 
         // Initialize app with error handling and retries
         let initializationAttempts = 0;
@@ -39,7 +36,25 @@
                     console.log('Attempting initialization...');
                     if (!supabaseClient) throw new Error('Supabase client not available');
 
-                    await initializeUser();
+                    // Simple check if user exists
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('telegram_id')
+                        .eq('telegram_id', userData.telegramId)
+                        .single();
+                    
+                    if (error) {
+                        // Create new user if doesn't exist
+                        await supabaseClient
+                            .from('users')
+                            .insert([{
+                                telegram_id: userData.telegramId,
+                                username: userData.username,
+                                ref_link: userData.refLink,
+                                joined_date: userData.joinedDate
+                            }]);
+                    }
+
                     console.log('Initialization successful');
                 } catch (error) {
                     console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
@@ -55,6 +70,35 @@
             
             attemptInitialization();
         });
+
+        // Simplified task handling - just open links
+        function handleTaskClick(link) {
+            window.open(link, '_blank');
+        }
+
+        // Add tasks section
+        const tasksSection = document.querySelector('.tasks-section');
+        if (tasksSection) {
+            tasksSection.innerHTML = `
+                <div class="task-pill">
+                    <h3>Join Telegram Channel</h3>
+                    <button onclick="handleTaskClick('https://t.me/StarShopEarn')">Go</button>
+                </div>
+                <div class="task-pill">
+                    <h3>Follow on Twitter</h3>
+                    <button onclick="handleTaskClick('https://twitter.com/StarShopEarn')">Go</button>
+                </div>
+            `;
+        }
+
+        // Update the UI to show a message for upcoming tasks
+        const comingSoonSection = document.getElementById('coming-soon');
+        if (comingSoonSection) {
+            comingSoonSection.innerHTML = `
+                <h2>More tasks to earn $STAR coming soon!</h2>
+                <p>Stay tuned for more opportunities!</p>
+            `;
+        }
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     

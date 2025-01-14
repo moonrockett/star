@@ -1135,17 +1135,37 @@
         const urlParams = new URLSearchParams(window.location.search);
 
         const userData = {
-            userName: urlParams.get('username') || tgUser?.username || tgUser?.first_name || 'Unknown User',
-            telegramId: urlParams.get('telegram_id') || tgUser?.id,
+            userName: urlParams.get('username') || tgUser?.username || tgUser?.first_name || 'No User',
+            telegramId: urlParams.get('telegram_id') || tgUser?.id || null,
             photoUrl: tgUser?.photo_url,
             languageCode: tgUser?.language_code,
             // Get these from URL parameters sent by bot
-            refLink: urlParams.get('ref_link'),
+            refLink: urlParams.get('ref_link') || null,
             referredBy: urlParams.get('referred_by'),
             joinedDate: urlParams.get('joined_date')
         };
 
         let currentStars = 50;
+
+        // Update initial UI with default values
+        function updateInitialUI() {
+            document.getElementById('dashUsername').textContent = userData.userName;
+            document.getElementById('dashStars').textContent = '0';
+            document.getElementById('dashReferrals').textContent = '0';
+            document.getElementById('dashRefLink').textContent = 
+                userData.refLink || 'No referral link available';
+        }
+
+        // Validate required parameters
+        function validateUserData() {
+            // Allow app to work without user data
+            if (!userData.telegramId) {
+                console.log('No user data available');
+                updateInitialUI();
+                return true;
+            }
+            return true;
+        }
 
         // Update display function
         function updateDisplay() {
@@ -1333,11 +1353,44 @@
         // Update the tasks container generation
         async function generateTaskPills() {
             const tasksContainer = document.querySelector('.tasks-container');
-            const telegramId = urlParams.get('telegram_id');
+            const telegramId = userData.telegramId;
             const tasks = await DB.getAvailableTasks(telegramId);
             
             let taskHtml = '';
             
+            if (!telegramId) {
+                // Show tasks without completion status
+                taskHtml = `
+                    <div class="task-pill">
+                        <div class="task-info">
+                            <span class="material-icons">telegram</span>
+                            <div class="task-text">
+                                <span>Join Telegram Channel</span>
+                                <span class="task-reward">+5 $STAR</span>
+                            </div>
+                        </div>
+                        <a href="https://t.me/StarShopEarn" target="_blank" class="task-button">
+                            <span class="material-icons">arrow_forward</span>
+                            Go
+                        </a>
+                    </div>
+                    <div class="task-pill">
+                        <div class="task-info">
+                            <span class="material-icons">flutter_dash</span>
+                            <div class="task-text">
+                                <span>Follow on Twitter</span>
+                                <span class="task-reward">+10 $STAR</span>
+                            </div>
+                        </div>
+                        <a href="https://twitter.com/StarShopEarn" target="_blank" class="task-button">
+                            <span class="material-icons">arrow_forward</span>
+                            Go
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
             tasks.forEach(task => {
                 taskHtml += `
                     <div class="task-pill ${task.completed ? 'completed' : ''}" id="task-${task.task_type}">
@@ -1480,7 +1533,8 @@
         async function initializeUser() {
             const telegramId = userData.telegramId;
             if (!telegramId) {
-                console.log('No Telegram WebApp data found');
+                console.log('No user data available - showing default view');
+                updateInitialUI();
                 return;
             }
             

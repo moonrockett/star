@@ -1581,7 +1581,6 @@
                             <span class="material-icons">${getTaskIcon(task.task_type)}</span>
                             <div class="task-text">
                                 <span>${task.task_name}</span>
-                                <span class="task-reward">+${task.stars_reward} $STAR</span>
                             </div>
                         </div>
                         <a href="${APP_CONFIG.links[task.task_type]}" 
@@ -1598,6 +1597,27 @@
                 `;
             });
 
+            // Add early adopter message and coming soon task
+            taskHtml = `
+                <div class="early-adopter-message">
+                    <span class="material-icons">stars</span>
+                    <p>Special gifts for early supporters 😉</p>
+                </div>
+                ${taskHtml}
+                <div class="task-pill coming-soon">
+                    <div class="task-info">
+                        <span class="material-icons">pending</span>
+                        <div class="task-text">
+                            <span>Coming Soon: Earn $STAR for Tasks</span>
+                        </div>
+                    </div>
+                    <button class="task-button disabled" disabled>
+                        <span class="material-icons">lock_clock</span>
+                        Soon
+                    </button>
+                </div>
+            `;
+
             // Add completed tasks section
             const completedTasks = tasks.filter(t => t.completed);
             if (completedTasks.length > 0) {
@@ -1606,20 +1626,43 @@
                         <h3>Completed Tasks</h3>
                         <div class="warning-text">
                             <span class="material-icons">warning</span>
-                            Undoing any task (unfollowing, leaving channels) will result in forfeiture of earnings
+                            Undoing any task (unfollowing, leaving channels) will result in forfeiture of benefits
                         </div>
                         <div class="completed-tasks-list">
                             ${completedTasks.map(task => `
                                 <div class="completed-task-item">
                                     <span class="material-icons">${getTaskIcon(task.task_type)}</span>
                                     <span>${task.task_name}</span>
-                                    <span class="completed-reward">+${task.stars_reward} $STAR</span>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
             }
+
+            // Add styles for early adopter message
+            const style = document.createElement('style');
+            style.textContent = `
+                .early-adopter-message {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 12px;
+                    margin-bottom: 16px;
+                    background: rgba(218, 165, 32, 0.1);
+                    border-radius: 8px;
+                    border: 1px dashed rgba(218, 165, 32, 0.3);
+                }
+                .early-adopter-message .material-icons {
+                    color: goldenrod;
+                }
+                .early-adopter-message p {
+                    margin: 0;
+                    color: goldenrod;
+                    font-weight: 500;
+                }
+            `;
+            document.head.appendChild(style);
 
             tasksContainer.innerHTML = taskHtml;
         }

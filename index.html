@@ -17,14 +17,18 @@
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
         );
 
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const userData = {
-            telegramId: urlParams.get('telegram_id'),
-            username: urlParams.get('username'),
-            refLink: urlParams.get('ref_link'),
-            joinedDate: urlParams.get('joined_date')
-        };
+        // Get URL parameters and Telegram WebApp data
+        function getUserData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+            
+            return {
+                telegramId: urlParams.get('telegram_id') || tgUser?.id,
+                username: urlParams.get('username') || tgUser?.username || tgUser?.first_name,
+                refLink: urlParams.get('ref_link'),
+                joinedDate: urlParams.get('joined_date')
+            };
+        }
 
         // Validate required parameters
         function validateUserData() {
@@ -53,10 +57,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', async function() {
+            // Show loading immediately
+            toggleLoading(true);
+            
             async function attemptInitialization() {
                 try {
-                    toggleLoading(true);
                     console.log('Attempting initialization...');
+                    
+                    // Get user data
+                    const userData = getUserData();
+                    console.log('User data:', userData);
+                    
                     if (!validateUserData()) {
                         throw new Error('Missing required parameters');
                     }
@@ -86,13 +97,13 @@
                     toggleLoading(false);
                 } catch (error) {
                     console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
-                    toggleLoading(false);
                     if (++initializationAttempts < MAX_INIT_ATTEMPTS) {
                         console.log(`Retrying in 1 second... (Attempt ${initializationAttempts + 1}/${MAX_INIT_ATTEMPTS})`);
                         setTimeout(attemptInitialization, 1000);
                     } else {
                         console.error('Max initialization attempts reached. Please refresh the page.');
                         alert('Failed to initialize app. Please try again.');
+                        toggleLoading(false);
                     }
                 }
             }

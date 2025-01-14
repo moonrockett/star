@@ -13,33 +13,124 @@
     <script>
         // Database Functions - Define DB object first
         const DB = {
+            // Format headers for Supabase requests
+            getHeaders() {
+                return {
+                    'apikey': supabaseClient.supabaseKey,
+                    'Authorization': `Bearer ${supabaseClient.supabaseKey}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Prefer': 'return=minimal'
+                };
+            },
+
             async getAvailableTasks(telegramId) {
                 try {
                     // Get all active tasks
-                    const { data: allTasks } = await supabaseClient
+                    const { data: allTasks, error: tasksError } = await supabaseClient
                         .from('tasks')
                         .select('*')
+                        .returns('json')  // Explicitly request JSON
                         .eq('is_active', true);
 
+                    if (tasksError) throw tasksError;
+
+                    // If no telegram ID, return tasks without completion status
+                    if (!telegramId) {
+                        return allTasks.map(task => ({
+                            ...task,
+                            completed: false
+                        }));
+                    }
+
                     // Get user's completed tasks
-                    const { data: completedTasks } = await supabaseClient
-                        .from('completed_tasks')
-                        .select('task_id')
-                        .eq('user_id', telegramId);
+                    const { data: user, error: userError } = await supabaseClient
+                        .from('users')
+                        .select('completed_tasks')
+                        .returns('json')
+                        .eq('telegram_id', telegramId)
+                        .single();
 
-                    const completedTaskIds = completedTasks?.map(t => t.task_id) || [];
+                    if (userError) throw userError;
 
-                    // Mark tasks as completed or not
-                    return allTasks?.map(task => ({
+                    const completedTaskIds = user?.completed_tasks || [];
+
+                    return allTasks.map(task => ({
                         ...task,
                         completed: completedTaskIds.includes(task.id)
-                    })) || [];
+                    }));
                 } catch (error) {
                     console.error('Error getting available tasks:', error);
                     return [];
                 }
             },
-            // ... rest of DB methods ...
+
+            async getUserTasks(telegramId) {
+                try {
+                    if (!telegramId) return [];
+
+                    // Get user's completed tasks directly from users table
+                    const { data: user, error: userError } = await supabaseClient
+                        .from('users')
+                        .select('completed_tasks')
+                        .returns('json')
+                        .eq('telegram_id', telegramId)
+                        .single();
+
+                    if (userError) throw userError;
+
+                    // If no completed tasks, return empty array
+                    if (!user?.completed_tasks?.length) return [];
+
+                    // Get task details for completed tasks
+                    const { data: tasks, error: tasksError } = await supabaseClient
+                        .from('tasks')
+                        .select('*')
+                        .returns('json')
+                        .in('id', user.completed_tasks);
+
+                    if (tasksError) throw tasksError;
+
+                    return tasks.map(task => ({
+                        task_type: task.task_type,
+                        task_name: task.task_name,
+                        stars_earned: task.stars_reward
+                    }));
+                } catch (error) {
+                    console.error('Error getting user tasks:', error);
+                    return [];
+                }
+            },
+
+            async recordTaskCompletion(telegramId, taskType, starsEarned) {
+                try {
+                    // Get task ID
+                    const { data: task, error: taskError } = await supabaseClient
+                        .from('tasks')
+                        .select('id')
+                        .returns('json')
+                        .eq('task_type', taskType)
+                        .single();
+
+                    if (taskError) throw taskError;
+
+                    // Update user's completed_tasks array
+                    const { error: updateError } = await supabaseClient
+                        .from('users')
+                        .update({
+                            completed_tasks: supabaseClient.sql`array_append(completed_tasks, ${task.id})`,
+                            stars_earned: supabaseClient.sql`stars_earned + ${starsEarned}`
+                        })
+                        .eq('telegram_id', telegramId);
+
+                    if (updateError) throw updateError;
+
+                    return { success: true };
+                } catch (error) {
+                    console.error('Error recording task completion:', error);
+                    return { error: error.message };
+                }
+            }
         };
 
         // Initialize Supabase client immediately
@@ -53,9 +144,17 @@
             const urlParams = new URLSearchParams(window.location.search);
             const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
             
+            // Development defaults
+            const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const devDefaults = {
+                telegramId: '123456',
+                username: 'DevUser',
+                refLink: 'https://t.me/StarShopEarnbot?start=REF123456'
+            };
+            
             return {
-                telegramId: urlParams.get('telegram_id') || tgUser?.id,
-                username: urlParams.get('username') || tgUser?.username || tgUser?.first_name,
+                telegramId: urlParams.get('telegram_id') || tgUser?.id || (isDev ? devDefaults.telegramId : null),
+                username: urlParams.get('username') || tgUser?.username || tgUser?.first_name || (isDev ? devDefaults.username : null),
                 refLink: urlParams.get('ref_link'),
                 joinedDate: urlParams.get('joined_date')
             };

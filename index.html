@@ -936,6 +936,17 @@
             opacity: 0.7;
             background: rgba(255, 255, 255, 0.05);
         }
+
+        .task-pill.coming-soon {
+            opacity: 0.7;
+            background: rgba(218, 165, 32, 0.1);
+            border: 1px dashed rgba(218, 165, 32, 0.3);
+        }
+
+        .task-button.disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -1515,8 +1526,7 @@
                         <div class="task-info">
                             <span class="material-icons">telegram</span>
                             <div class="task-text">
-                                <span>Join Telegram Channel</span>
-                                <span class="task-reward">+5 $STAR</span>
+                                <span>Join Official Telegram Community</span>
                             </div>
                         </div>
                         <a href="https://t.me/StarShopEarn" target="_blank" class="task-button">
@@ -1528,14 +1538,37 @@
                         <div class="task-info">
                             <span class="material-icons">flutter_dash</span>
                             <div class="task-text">
-                                <span>Follow on Twitter</span>
-                                <span class="task-reward">+10 $STAR</span>
+                                <span>Follow Official X (Twitter)</span>
                             </div>
                         </div>
                         <a href="https://twitter.com/StarShopEarn" target="_blank" class="task-button">
                             <span class="material-icons">arrow_forward</span>
                             Go
                         </a>
+                    </div>
+                    <div class="task-pill">
+                        <div class="task-info">
+                            <span class="material-icons">smart_display</span>
+                            <div class="task-text">
+                                <span>Subscribe to YouTube Channel</span>
+                            </div>
+                        </div>
+                        <a href="https://youtube.com/@StarShopEarn" target="_blank" class="task-button">
+                            <span class="material-icons">arrow_forward</span>
+                            Go
+                        </a>
+                    </div>
+                    <div class="task-pill coming-soon">
+                        <div class="task-info">
+                            <span class="material-icons">pending</span>
+                            <div class="task-text">
+                                <span>Coming Soon: Earn $STAR for Tasks</span>
+                            </div>
+                        </div>
+                        <button class="task-button disabled" disabled>
+                            <span class="material-icons">lock_clock</span>
+                            Soon
+                        </button>
                     </div>
                 `;
                 return;
@@ -1595,6 +1628,7 @@
             const icons = {
                 twitter: 'flutter_dash',
                 telegram: 'telegram',
+                youtube: 'smart_display',
                 adChannel: 'campaign',
                 adInstagram: 'photo_camera'
             };

@@ -11,6 +11,37 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Database Functions - Define DB object first
+        const DB = {
+            async getAvailableTasks(telegramId) {
+                try {
+                    // Get all active tasks
+                    const { data: allTasks } = await supabaseClient
+                        .from('tasks')
+                        .select('*')
+                        .eq('is_active', true);
+
+                    // Get user's completed tasks
+                    const { data: completedTasks } = await supabaseClient
+                        .from('completed_tasks')
+                        .select('task_id')
+                        .eq('user_id', telegramId);
+
+                    const completedTaskIds = completedTasks?.map(t => t.task_id) || [];
+
+                    // Mark tasks as completed or not
+                    return allTasks?.map(task => ({
+                        ...task,
+                        completed: completedTaskIds.includes(task.id)
+                    })) || [];
+                } catch (error) {
+                    console.error('Error getting available tasks:', error);
+                    return [];
+                }
+            },
+            // ... rest of DB methods ...
+        };
+
         // Initialize Supabase client immediately
         const supabaseClient = supabase.createClient(
             'https://iolupdbwmpjtxhjdgbes.supabase.co',
@@ -1592,108 +1623,6 @@
 
         // Call this when the page loads
         initializeUser();
-
-        // Database Functions
-        const DB = {
-            async getAvailableTasks(telegramId) {
-                try {
-                    // Get all active tasks
-                    const { data: allTasks } = await supabaseClient
-                        .from('tasks')
-                        .select('*')
-                        .eq('is_active', true);
-
-                    // Get user's completed tasks
-                    const { data: completedTasks } = await supabaseClient
-                        .from('completed_tasks')
-                        .select('task_id')
-                        .eq('user_id', telegramId);
-
-                    const completedTaskIds = completedTasks?.map(t => t.task_id) || [];
-
-                    // Mark tasks as completed or not
-                    return allTasks?.map(task => ({
-                        ...task,
-                        completed: completedTaskIds.includes(task.id)
-                    })) || [];
-                } catch (error) {
-                    console.error('Error getting available tasks:', error);
-                    return [];
-                }
-            },
-
-            async recordTaskCompletion(telegramId, taskType, starsEarned) {
-                try {
-                    // Get task ID
-                    const { data: task } = await supabaseClient
-                        .from('tasks')
-                        .select('id')
-                        .eq('task_type', taskType)
-                        .single();
-
-                    if (!task) return null;
-
-                    // Check if already completed
-                    const { data: existing } = await supabaseClient
-                        .from('completed_tasks')
-                        .select('*')
-                        .eq('user_telegram_id', telegramId)
-                        .eq('task_id', task.id)
-                        .single();
-
-                    if (existing) {
-                        return { error: 'Task already completed' };
-                    }
-
-                    // Record completion
-                    const { data, error } = await supabaseClient
-                        .from('completed_tasks')
-                        .insert([{
-                            user_telegram_id: telegramId,
-                            task_id: task.id,
-                            stars_earned: starsEarned
-                        }]);
-
-                    if (!error) {
-                        // Update user's total stars
-                        await supabaseClient
-                            .from('users')
-                            .update({ 
-                                stars_earned: supabaseClient.sql`stars_earned + ${starsEarned}` 
-                            })
-                            .eq('telegram_id', telegramId);
-                    }
-
-                    return data;
-                } catch (error) {
-                    console.error('Error recording task:', error);
-                    return null;
-                }
-            },
-
-            async getUserTasks(telegramId) {
-                if (!supabaseClient) {
-                    console.error('Supabase not initialized');
-                    return [];
-                }
-                const { data: userData } = await supabaseClient
-                    .from('users')
-                    .select('id')
-                    .eq('telegram_id', telegramId)
-                    .single();
-
-                if (!userData) return [];
-
-                const { data, error } = await supabaseClient
-                    .from('completed_tasks')
-                    .select('*')
-                    .eq('user_id', userData.id)
-                    .order('completed_at', { ascending: false });
-
-                if (error) console.error('Error fetching tasks:', error);
-                return data || [];
-            }
-        };
 
         // Initialize starfield and animations
         function createStarfield() {

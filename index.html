@@ -11,19 +11,49 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Database interface - define before use
+        const DB = {
+            async initializeUser(userData) {
+                if (!supabaseClient) throw new Error('Supabase not initialized');
+                // ... rest of initialization code
+            },
+            async recordTaskCompletion(taskId, telegramId) {
+                if (!supabaseClient) throw new Error('Supabase not initialized');
+                // ... task completion code
+            }
+        };
+
         // Initialize Supabase client immediately
         const supabaseClient = supabase.createClient(
             'https://iolupdbwmpjtxhjdgbes.supabase.co',
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvbHVwZGJ3bXBqdHhoamRnYmVzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY3ODcwMDcsImV4cCI6MjA1MjM2MzAwN30.qo3j407sfiuAJzJiilkatVPlTE1Fiy2dw41uC02afP4'
         );
 
-        // Wait for DOM and initialize user
+        // Initialize app with error handling and retries
+        let initializationAttempts = 0;
+        const MAX_INIT_ATTEMPTS = 3;
+
         document.addEventListener('DOMContentLoaded', async function() {
-            try {
-                await initializeUser();
-            } catch (error) {
-                console.error('Error in initialization:', error);
+            async function attemptInitialization() {
+                try {
+                    console.log('Attempting initialization...');
+                    if (!supabaseClient) throw new Error('Supabase client not available');
+
+                    await initializeUser();
+                    console.log('Initialization successful');
+                } catch (error) {
+                    console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
+                    if (++initializationAttempts < MAX_INIT_ATTEMPTS) {
+                        console.log(`Retrying in 1 second... (Attempt ${initializationAttempts + 1}/${MAX_INIT_ATTEMPTS})`);
+                        setTimeout(attemptInitialization, 1000);
+                    } else {
+                        console.error('Max initialization attempts reached. Please refresh the page.');
+                        alert('Failed to initialize app. Please try again.');
+                    }
+                }
             }
+            
+            attemptInitialization();
         });
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
@@ -1536,7 +1566,27 @@
 
         // Add new function to handle task button clicks
         async function handleTaskClick(taskType, link, button) {
+            if (button.classList.contains('completed')) {
+                console.log('Task already completed');
+                return;
+            }
+
+            if (!button.classList.contains('verifying')) {
+                window.open(link, '_blank');
+                button.innerHTML = `
+                    <span class="material-icons">verified</span>
+                    Verify
+                `;
+                button.classList.add('verifying');
+                return;
+            }
+
             try {
+                button.innerHTML = `
+                    <div class="button-loader"></div>
+                    Verifying
+                `;
+
                 console.log('Starting task completion:', { taskType, telegramId: userData.telegramId });
                 
                 const [taskResponse, userResponse] = await Promise.all([
@@ -1550,8 +1600,19 @@
                         .single()
                 ]);
                 
+                if (!taskResponse.data || !userResponse.data) {
+                    throw new Error('Could not find task or user data');
+                }
+
                 console.log('Task data:', taskResponse.data);
                 console.log('User data:', userResponse.data);
+
+                const task = taskResponse.data;
+                const user = userResponse.data;
+
+                if (user.completed_tasks?.includes(task.id)) {
+                    throw new Error('Task already completed');
+                }
 
                 // Update completed_tasks
                 const { error: updateError } = await supabaseClient
@@ -1563,8 +1624,29 @@
                     
                 console.log('Update result:', updateError || 'Success');
 
+                if (updateError) throw updateError;
+
+                // Update UI to show completion
+                button.classList.remove('verifying');
+                button.classList.add('completed');
+                button.innerHTML = `
+                    <span class="material-icons">done</span>
+                    Completed
+                `;
+
+                // Refresh stats
+                await updateUserStats();
+
             } catch (error) {
                 console.error('Task completion error:', error);
+                button.classList.remove('verifying');
+                button.innerHTML = `
+                    <span class="material-icons">error</span>
+                    ${error.message === 'Task already completed' ? 'Completed' : 'Try Again'}
+                `;
+                if (error.message === 'Task already completed') {
+                    button.classList.add('completed');
+                }
             }
         }
 

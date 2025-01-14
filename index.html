@@ -1655,28 +1655,6 @@
                 </div>
             `;
 
-            // Add completed tasks section
-            const completedTasks = tasks.filter(t => t.completed);
-            if (completedTasks.length > 0) {
-                taskHtml += `
-                    <div class="completed-tasks-section">
-                        <h3>Completed Tasks</h3>
-                        <div class="warning-text">
-                            <span class="material-icons">warning</span>
-                            Undoing any task (unfollowing, leaving channels) will result in forfeiture of benefits
-                        </div>
-                        <div class="completed-tasks-list">
-                            ${completedTasks.map(task => `
-                                <div class="completed-task-item">
-                                    <span class="material-icons">${getTaskIcon(task.task_type)}</span>
-                                    <span>${task.task_name}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-
             // Add styles for early adopter message
             const style = document.createElement('style');
             style.textContent = `

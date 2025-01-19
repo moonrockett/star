@@ -1243,7 +1243,7 @@
                 <!-- Star Price Info -->
                 <div class="star-price-info">
                     <div class="price-badge">
-                        1 $STAR = ${process.env.NEXT_PUBLIC_STAR_PRICE_USDT} USDT
+                        <span id="starPriceDisplay">1 $STAR = 0.05 USDT</span>
                     </div>
                 </div>
 
@@ -2139,6 +2139,15 @@
         const STAR_PRICE_USDT = parseFloat(process.env.NEXT_PUBLIC_STAR_PRICE_USDT || "0.05");
         const SOL_PRICE_USDT = parseFloat(process.env.NEXT_PUBLIC_SOL_PRICE_USDT || "100.00");
 
+        // Update price display when modal opens
+        function openPresaleModal() {
+            document.getElementById('mainCard').style.display = 'none';
+            document.querySelector('.presale-pill').style.display = 'none';
+            document.getElementById('presaleModal').style.display = 'block';
+            // Update the price display
+            document.getElementById('starPriceDisplay').textContent = `1 $STAR = ${STAR_PRICE_USDT} USDT`;
+        }
+
         function calculateStars(solAmount) {
             if (!solAmount || solAmount < 0.2) {
                 document.getElementById('starResult').innerHTML = 
@@ -2151,12 +2160,6 @@
 
             document.getElementById('starResult').innerHTML = 
                 `You will receive: <span>${starsAmount.toLocaleString()} $STAR</span>`;
-        }
-
-        function openPresaleModal() {
-            document.getElementById('mainCard').style.display = 'none';
-            document.querySelector('.presale-pill').style.display = 'none';
-            document.getElementById('presaleModal').style.display = 'block';
         }
 
         function closePresaleModal() {

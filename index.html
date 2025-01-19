@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,16 +147,22 @@
             // Development defaults
             const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const devDefaults = {
-                telegramId: '123456',
-                username: 'DevUser',
-                refLink: 'https://t.me/StarShopEarnbot?start=REF123456'
+                telegramId: '123456789',
+                username: 'TestUser',
             };
             
+            // Get telegram ID first as we need it for generating ref link
+            const telegramId = urlParams.get('telegram_id') || tgUser?.id || (isDev ? devDefaults.telegramId : null);
+            
+            // Generate ref link if not provided in URL
+            const providedRefLink = urlParams.get('ref_link');
+            const generatedRefLink = `https://t.me/StarShopEarnbot?start=REF${telegramId}`;
+            
             return {
-                telegramId: urlParams.get('telegram_id') || tgUser?.id || (isDev ? devDefaults.telegramId : null),
+                telegramId: telegramId,
                 username: urlParams.get('username') || tgUser?.username || tgUser?.first_name || (isDev ? devDefaults.username : null),
-                refLink: urlParams.get('ref_link'),
-                joinedDate: urlParams.get('joined_date')
+                refLink: providedRefLink || generatedRefLink,
+                joinedDate: urlParams.get('joined_date') || new Date().toISOString()
             };
         }
 
@@ -1734,7 +1739,7 @@
             return result;
         }
 
-        // Add this to your initialization code
+        // Update the user initialization function
         async function initializeUser() {
             const telegramId = userData.telegramId;
             if (!telegramId) {
@@ -1753,14 +1758,14 @@
                         photo_url: userData.photoUrl,
                         language_code: userData.languageCode,
                         stars_earned: 0,
-                        ref_link: userData.refLink,
+                        ref_link: `https://t.me/StarShopEarnbot?start=REF${telegramId}`,
                         referred_by: userData.referredBy,
                         joined_date: userData.joinedDate || new Date().toISOString(),
                         completed_tasks: [],
                         successful_referrals: 0
                     }, { 
                         onConflict: 'telegram_id',
-                        update: ['username', 'photo_url', 'language_code', 'ref_link']
+                        update: ['username', 'photo_url', 'language_code']
                     });
 
                 if (upsertError) {
@@ -1787,7 +1792,7 @@
                 }
                 document.getElementById('dashReferrals').textContent = referrals?.length || 0;
                 document.getElementById('dashRefLink').textContent = 
-                    userData.refLink || `https://t.me/StarShopEarnbot?start=REF${userData.telegramId}`;
+                    `https://t.me/StarShopEarnbot?start=REF${telegramId}`;
 
                 // Load task history
                 await generateTaskPills();

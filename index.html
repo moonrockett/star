@@ -178,8 +178,11 @@
             // Initialize user data
             userData = getUserData();
             
-            // Start countdown
-            startCountdown();
+            // Start countdown with cleanup
+            const cleanupCountdown = startCountdown();
+            
+            // Cleanup on page unload
+            window.addEventListener('unload', cleanupCountdown);
             
             async function attemptInitialization() {
                 try {
@@ -460,6 +463,7 @@
         // Countdown functionality
         function startCountdown() {
             const targetDate = new Date('2024-03-31T00:00:00Z').getTime();
+            let countdownInterval;
             
             function updateCountdown() {
                 const now = new Date().getTime();
@@ -478,12 +482,21 @@
                 
                 if (distance < 0) {
                     clearInterval(countdownInterval);
-                    countdownDisplay.textContent = '00:00:00:00';
+                    if (countdownDisplay) {
+                        countdownDisplay.textContent = '00:00:00:00';
+                    }
                 }
             }
             
             updateCountdown(); // Initial call
-            const countdownInterval = setInterval(updateCountdown, 1000);
+            countdownInterval = setInterval(updateCountdown, 1000);
+            
+            // Cleanup function
+            return () => {
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                }
+            };
         }
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
@@ -1612,7 +1625,7 @@
                     <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
                     Please read the important instructions below carefully
                 </p>
-    </div>
+            </div>
 
             <div class="space-y-4">
                 <!-- Stars quantity section -->

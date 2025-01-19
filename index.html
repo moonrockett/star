@@ -1111,6 +1111,64 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        .star-price-info {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .price-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #FCDC2E, #D78B00);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: black;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .calculator-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .calculator-input {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .calculator-input input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            font-size: 1.1em;
+            padding-right: 50px;
+        }
+
+        .calculator-input .input-suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #FFD700;
+            font-weight: 500;
+        }
+
+        .calculator-result {
+            color: #FFD700;
+            font-size: 0.9em;
+            text-align: right;
+        }
+
+        .calculator-result span {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
@@ -1182,6 +1240,35 @@
             </h3>
             
             <div class="space-y-4">
+                <!-- Star Price Info -->
+                <div class="star-price-info">
+                    <div class="price-badge">
+                        1 $STAR = ${process.env.NEXT_PUBLIC_STAR_PRICE_USDT} USDT
+                    </div>
+                </div>
+
+                <!-- Calculator Section -->
+                <div class="calculator-section">
+                    <label class="text-gray-400 flex items-center gap-2 mb-2">
+                        <i class="fas fa-calculator"></i>
+                        Calculate Stars
+                    </label>
+                    <div class="calculator-input">
+                        <input 
+                            type="number" 
+                            id="solAmount" 
+                            min="0.2" 
+                            step="0.1" 
+                            placeholder="Enter SOL amount"
+                            oninput="calculateStars(this.value)"
+                        >
+                        <span class="input-suffix">SOL</span>
+                    </div>
+                    <div class="calculator-result" id="starResult">
+                        You will receive: <span>0 $STAR</span>
+                    </div>
+                </div>
+
                 <div>
                     <p class="text-gray-400 flex items-center gap-2 mb-2">
                         <span class="material-icons">account_balance_wallet</span>
@@ -2046,6 +2133,36 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
+        }
+
+        // Get environment variables
+        const STAR_PRICE_USDT = parseFloat(process.env.NEXT_PUBLIC_STAR_PRICE_USDT || "0.05");
+        const SOL_PRICE_USDT = parseFloat(process.env.NEXT_PUBLIC_SOL_PRICE_USDT || "100.00");
+
+        function calculateStars(solAmount) {
+            if (!solAmount || solAmount < 0.2) {
+                document.getElementById('starResult').innerHTML = 
+                    'You will receive: <span>0 $STAR</span>';
+                return;
+            }
+
+            const usdtValue = solAmount * SOL_PRICE_USDT;
+            const starsAmount = Math.floor(usdtValue / STAR_PRICE_USDT);
+
+            document.getElementById('starResult').innerHTML = 
+                `You will receive: <span>${starsAmount.toLocaleString()} $STAR</span>`;
+        }
+
+        function openPresaleModal() {
+            document.getElementById('mainCard').style.display = 'none';
+            document.querySelector('.presale-pill').style.display = 'none';
+            document.getElementById('presaleModal').style.display = 'block';
+        }
+
+        function closePresaleModal() {
+            document.getElementById('presaleModal').style.display = 'none';
+            document.getElementById('mainCard').style.display = 'block';
+            document.querySelector('.presale-pill').style.display = 'block';
         }
     </script>
 </body>

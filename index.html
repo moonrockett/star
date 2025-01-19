@@ -149,17 +149,20 @@
             // Development defaults
             const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
             const devDefaults = {
-                telegramId: '123456',
-                username: 'DevUser',
-                refLink: 'https://t.me/StarShopEarnbot?start=REF123456'
+                telegramId: '123456789',
+                username: 'TestUser',
+                refLink: 'https://t.me/StarShopEarnbot?start=REF123456789'
             };
             
-            return {
+            const data = {
                 telegramId: urlParams.get('telegram_id') || tgUser?.id || (isDev ? devDefaults.telegramId : null),
                 username: urlParams.get('username') || tgUser?.username || tgUser?.first_name || (isDev ? devDefaults.username : null),
-                refLink: urlParams.get('ref_link'),
-                joinedDate: urlParams.get('joined_date')
+                refLink: urlParams.get('ref_link') || (isDev ? devDefaults.refLink : null),
+                joinedDate: urlParams.get('joined_date') || new Date().toISOString()
             };
+            
+            console.log('Parsed user data:', data);
+            return data;
         }
 
         // Initialize userData at the global scope

@@ -310,6 +310,14 @@
                 </div>
             `;
         }
+
+        function openPresaleModal() {
+            document.getElementById('presaleModal').style.display = 'block';
+        }
+
+        function closePresaleModal() {
+            document.getElementById('presaleModal').style.display = 'none';
+        }
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     
@@ -978,6 +986,53 @@
         .connect-wallet-btn .material-icons {
             font-size: 18px;
         }
+
+        .presale-pill {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .presale-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .presale-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #FFD700;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .presale-description {
+            color: #fff;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .presale-button {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .presale-button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -1021,6 +1076,71 @@
                         <span>sec</span>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Presale Section -->
+        <div class="presale-pill mb-4">
+            <div class="presale-content">
+                <div class="presale-header">
+                    <span class="material-icons">local_fire_department</span>
+                    <span>$STAR PRESALE IS LIVE 🚀</span>
+                </div>
+                <p class="presale-description">
+                    #STAR trading is available soon, join presale now and turn your SOL into 100X 🔥
+                </p>
+                <button class="presale-button" onclick="openPresaleModal()">
+                    Join Presale
+                </button>
+            </div>
+        </div>
+
+        <!-- Add Presale Modal -->
+        <div id="presaleModal" class="glass-card" style="display: none;">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                <span class="material-icons">rocket_launch</span>
+                $STAR Presale Details
+            </h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-gray-400 flex items-center gap-2 mb-2">
+                        <span class="material-icons">account_balance_wallet</span>
+                        Send SOL to:
+                    </p>
+                    <div class="copy-wrapper value-display">
+                        <p class="text-white break-all flex-1" id="solAddress">Es41KWGVR4YTMgnsF3HasrE9ZTdUiSUbCUvA2eeczUVm</p>
+                        <button class="copy-button" onclick="copyToClipboard('solAddress')">
+                            <span class="material-icons text-gray-300">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="warning-section mt-4">
+                    <div class="warning-title">
+                        <span class="material-icons">warning</span>
+                        Important Instructions
+                    </div>
+                    <ul class="warning-list">
+                        <li>
+                            <span class="material-icons">priority_high</span>
+                            <span>Minimum contribution: 0.2 SOL</span>
+                        </li>
+                        <li>
+                            <span class="material-icons">content_copy</span>
+                            <span>Copy the wallet address carefully. Sending to an incorrect address will result in permanent loss of funds.</span>
+                        </li>
+                        <li>
+                            <span class="material-icons">support_agent</span>
+                            <span>After sending SOL, please share the transaction hash with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none;">@Starshopsupport</a></span>
+                        </li>
+                    </ul>
+                </div>
+
+                <button class="wallet-button back-button" onclick="closePresaleModal()">
+                    <span class="material-icons">arrow_back</span>
+                    Back
+                </button>
             </div>
         </div>
 
@@ -1235,7 +1355,7 @@
                         </li>
                         <li>
                             <span class="material-icons">support_agent</span>
-                            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
+                            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none;">@Starshopsupport</a>. For any issues, contact our support team.</span>
                         </li>
                     </ul>
                 </div>

@@ -188,6 +188,11 @@
             }
         }
 
+        // Hide loading screen
+        function hideLoadingScreen() {
+            toggleLoading(false);
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             // Show loading immediately
             toggleLoading(true);
@@ -380,7 +385,7 @@
             try {
                 const response = await fetch('https://rest.coinapi.io/v1/exchangerate/SOL/USDT', {
                     headers: {
-                        'X-CoinAPI-Key': process.env.COINAPI_KEY
+                        'X-CoinAPI-Key': 'YOUR_API_KEY_HERE'  // Replace with your actual API key
                     }
                 });
                 const data = await response.json();

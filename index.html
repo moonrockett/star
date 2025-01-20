@@ -984,6 +984,79 @@
         .connect-wallet-btn .material-icons {
             font-size: 18px;
         }
+
+        /* Presale Announcement */
+        .presale-announcement {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .join-presale-btn {
+            background: linear-gradient(45deg, var(--gold-dark), var(--gold-primary));
+            color: var(--black-primary);
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .join-presale-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Calculator Styles */
+        .calculator-container {
+            background: var(--black-light);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background: var(--black-dark);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin-bottom: 12px;
+        }
+
+        .input-group input {
+            background: none;
+            border: none;
+            color: white;
+            flex: 1;
+            font-size: 18px;
+            outline: none;
+        }
+
+        .currency-label {
+            color: var(--gold-primary);
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .arrow {
+            text-align: center;
+            color: var(--gold-primary);
+            margin: 12px 0;
+            font-size: 24px;
+        }
+
+        .calculator-result {
+            text-align: center;
+            color: var(--gold-light);
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -1274,6 +1347,56 @@
                 <span class="material-icons">arrow_back</span>
                 Back to Earn
             </button>
+        </div>
+
+        <!-- Presale Announcement -->
+        <div class="presale-announcement">
+            <div class="announcement-content">
+                <h2 class="text-2xl font-bold mb-2 text-gold">$STAR PRESALE IS LIVE 🚀</h2>
+                <p class="text-gray-300 mb-4">#STAR trading is available soon, join presale now and turn your SOL into 100X 🔥</p>
+                <button onclick="openPresaleModal()" class="join-presale-btn">
+                    Join Presale
+                </button>
+            </div>
+        </div>
+
+        <!-- Countdown Section -->
+        <div class="countdown-section">
+    </div>
+
+    <!-- Presale Modal -->
+    <div id="presaleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>$STAR Presale</h2>
+                <button onclick="closePresaleModal()" class="close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="presale-info">
+                    <p class="text-center mb-4">Send SOL to:</p>
+                    <div class="wallet-address">
+                        <code>Es41KWGVR4YTMgnsF3HasrE9ZTdUiSUbCUvA2eeczUVm</code>
+                        <button onclick="copyToClipboard('presaleWallet')" class="copy-btn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <p class="min-amount">Min 0.2 SOL</p>
+                </div>
+                
+                <!-- Calculator Section -->
+                <div class="calculator-container">
+                    <div class="rate-display" id="rateDisplay">1 $STAR = 0.00000796 USDT</div>
+                    <div class="input-group">
+                        <input type="number" id="calcInput" min="0.2" step="0.1" placeholder="Enter SOL amount">
+                        <span class="currency-label" id="inputSuffix">SOL</span>
+                    </div>
+                    <div class="arrow">↓</div>
+                    <div class="calculator-result" id="calcResult">
+                        You will receive: <span>0</span> <span id="resultSuffix">$STAR</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

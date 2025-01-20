@@ -991,9 +991,10 @@
             border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin: 20px 0;
             text-align: center;
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
         .join-presale-btn {
@@ -1057,6 +1058,16 @@
             color: var(--gold-light);
             font-size: 16px;
         }
+
+        /* Adjust countdown section margin */
+        .countdown-section {
+            margin-bottom: 0;
+        }
+
+        /* Adjust main card margin */
+        .main-card {
+            margin-top: 0;
+        }
     </style>
 </head>
 <body>
@@ -1064,293 +1075,18 @@
     <div class="noise"></div>
 
     <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-content">
-            <svg class="loading-star" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
-                <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
-            </svg>
-            <div class="loading-text">Stars</div>
-            <div class="loading-text">Loading</div>
-            <div class="loading-bar"></div>
-        </div>
+        <div class="spinner"></div>
     </div>
 
-    <div class="container mx-auto px-4 py-8 max-w-md">
-        <!-- Add Connect Wallet Button -->
-        <div class="connect-wallet-container">
-            <button class="connect-wallet-btn" onclick="showComingSoon()">
-                <span class="material-icons">account_balance_wallet</span>
-                Connect Wallet
-            </button>
-        </div>
-
-        <div class="countdown-pill mb-4">
-            <div class="countdown-content">
-                <div class="countdown-text">
-                    <span class="material-icons">rocket_launch</span>
-                    <span>$STAR Airdrop starts in</span>
-                </div>
-                <div class="countdown-timer">
-                    <div class="countdown-numbers" id="countdownDisplay">
-                        00:00:00:00
-                    </div>
-                    <div class="countdown-labels">
-                        <span>days</span>
-                        <span>hours</span>
-                        <span>min</span>
-                        <span>sec</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main glass card starts here -->
-        <div class="glass-card">
-            <div class="text-center mb-8">
-                <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
-                </svg>
-                <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
-                <p class="text-gray-300 mb-1">Purchase Telegram Stars using TON</p>
-                <p class="text-sm text-golden-accent">No KYC required</p>
-            </div>
-
-            <!-- Buy Section -->
-            <div id="buySection">
-                <div class="section-content">
-                    <label class="flex items-center gap-2 text-gray-300 mb-2">
-                        <span class="material-icons">shopping_cart</span>
-                        Number of Stars
-                    </label>
-                    <div class="amount-control">
-                        <button class="amount-button" id="decreaseBtn">-</button>
-                        <div class="amount-display" id="starsDisplay">50</div>
-                        <button class="amount-button" id="increaseBtn">+</button>
-                    </div>
-                    <div class="special-offer">
-                        <span class="material-icons">local_offer</span>
-                        <div class="special-offer-text">
-                            Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <div class="flex justify-between items-center text-gray-300 mb-2">
-                        <span class="flex items-center gap-2">
-                            <span class="material-icons">paid</span>
-                            Price per 50 Stars:
-                        </span>
-                        <span>0.13 TON</span>
-                    </div>
-                    <div class="flex justify-between items-center text-white font-bold">
-                        <span class="flex items-center gap-2">
-                            <span class="material-icons">attach_money</span>
-                            Total Price:
-                        </span>
-                        <span id="totalPrice">0.13 TON</span>
-                    </div>
-                </div>
-
-                <button class="primary-button" id="purchaseBtn">
-                    <span class="material-icons">payment</span>
-                    Generate Payment Details
-                </button>
-            </div>
-
-            <!-- Earn Section -->
-            <div id="earnSection" style="display: none;">
-                <div class="user-info mb-6">
-                    <div class="info-row flex justify-between items-center mb-4">
-                        <span class="info-label text-gray-400">Username:</span>
-                        <span class="info-value font-bold" id="dashUsername"></span>
-                    </div>
-                    <div class="info-row flex justify-between items-center mb-4">
-                        <span class="info-label text-gray-400">$STAR Earned:</span>
-                        <span class="info-value font-bold text-yellow-500" id="dashStars">0</span>
-                    </div>
-                    <div class="info-row flex justify-between items-center mb-4">
-                        <span class="info-label text-gray-400">Successful Referrals:</span>
-                        <span class="info-value font-bold text-green-500" id="dashReferrals">0</span>
-                    </div>
-                </div>
-
-                <div class="referral-link-section">
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">link</span>
-                        Your Referral Link
-                    </p>
-                    <div class="copy-wrapper">
-                        <p class="text-white break-all flex-1 text-sm" id="dashRefLink"></p>
-                        <button class="copy-button" onclick="copyRefLink()">
-                            <span class="material-icons text-gray-300">content_copy</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <button class="primary-button opacity-50 cursor-not-allowed" disabled>
-                        <span class="material-icons">account_balance_wallet</span>
-                        Withdraw $STAR
-                    </button>
-                    <p class="text-center text-sm text-gray-400 mt-2">Coming Soon</p>
-                </div>
-
-                <div class="mt-6">
-                    <button class="primary-button" onclick="openTasksModal()">
-                        <span class="material-icons">rocket_launch</span>
-                        Join the Voyage Early
-                    </button>
-                </div>
-            </div>
-
-            <div class="tab-buttons">
-                <button class="tab-button active" data-tab="buy">
-                    <span class="material-icons">shopping_cart</span>
-                    Buy Stars
-                </button>
-                <button class="tab-button" data-tab="earn">
-                    <span class="material-icons">group</span>
-                    Earn $STAR
-                </button>
-            </div>
-        </div>
-
-        <div id="paymentModal" class="glass-card" style="display: none;">
-            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                <span class="material-icons">receipt_long</span>
-                Payment Details
-            </h3>
-            
-            <div class="mt-2">
-                <p class="text-sm text-golden-accent flex items-center gap-2 mb-4">
-                    <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
-                    Please read the important instructions below carefully
-                </p>
-    </div>
-
-            <div class="space-y-4">
-                <!-- Stars quantity section -->
-                <div>
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">stars</span>
-                        $STAR to Purchase:
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 Stars</p>
-                    </div>
-                </div>
-
-                <!-- Network section -->
-                <div>
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">network_ping</span>
-                        Network:
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <p class="text-white break-all flex-1 value-display">TON (The Open Network)</p>
-                    </div>
-                </div>
-
-                <!-- Payment amount section -->
-                <div>
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">payments</span>
-                        Amount to Pay:
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <p class="text-white break-all flex-1 value-display" id="paymentAmount">0.13 TON</p>
-                    </div>
-                </div>
-                
-                <!-- Wallet address section -->
-                <div>
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">account_balance_wallet</span>
-                        TON Address:
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <div class="copy-wrapper value-display">
-                            <p class="text-white break-all flex-1" id="tonAddress">UQAV7UvOjM6o2rbU54To9V3GgmFUujbvCczOKB_nYFJwl9CS</p>
-                            <button class="copy-button" onclick="copyToClipboard('tonAddress')">
-                                <span class="material-icons text-gray-300">content_copy</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Order ID section -->
-                <div>
-                    <p class="text-gray-400 flex items-center gap-2 mb-2">
-                        <span class="material-icons">tag</span>
-                        Order ID (add as memo):
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <div class="copy-wrapper value-display">
-                            <p class="text-white break-all flex-1" id="orderId"></p>
-                            <button class="copy-button" onclick="copyToClipboard('orderId')">
-                                <span class="material-icons text-gray-300">content_copy</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="warning-section mt-4">
-                    <div class="warning-title">
-                        <span class="material-icons">warning</span>
-                        Important Instructions
-                    </div>
-                    <ul class="warning-list">
-                        <li>
-                            <span class="material-icons">priority_high</span>
-                            <span>You MUST send the EXACT amount shown above. Nothing more, nothing less!</span>
-                        </li>
-                        <li>
-                            <span class="material-icons">comment</span>
-                            <span>Don't forget to include your Order ID and Telegram username as a comment in your transaction.</span>
-                        </li>
-                        <li>
-                            <span class="material-icons">content_copy</span>
-                            <span>Tap the wallet address to copy it. Sending to an incorrect address will result in permanent loss of funds.</span>
-                        </li>
-                        <li>
-                            <span class="material-icons">support_agent</span>
-                            <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <button class="wallet-button back-button" onclick="closeModal()">
-                    <span class="material-icons">arrow_back</span>
-                    Back to Purchase
-                </button>
-            </div>
-        </div>
-
-        <!-- Add toast notification -->
-        <div id="toastNotification" class="toast-notification">
-            <span class="material-icons">check_circle</span>
-            <span id="toastMessage"></span>
-        </div>
-
-        <!-- Add this after the payment modal -->
-        <div id="tasksModal" class="glass-card" style="display: none;">
-            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                <span class="material-icons">rocket_launch</span>
-                Early Adopter Links
-            </h3>
-            
-            <div class="tasks-container space-y-4">
-                <!-- Tasks will be generated dynamically by generateTaskPills() -->
-            </div>
-
-            <button class="wallet-button back-button mt-4" onclick="closeTasksModal()">
-                <span class="material-icons">arrow_back</span>
-                Back to Earn
-            </button>
+    <div class="main-container">
+        <!-- Countdown Section -->
+        <div class="countdown-section">
+            <div class="countdown-label">$STAR AIRDROP STARTS IN</div>
+            <div id="countdownDisplay">00:00:00:00</div>
         </div>
 
         <!-- Presale Announcement -->
-        <div class="presale-announcement">
+        <div id="presaleAnnouncement" class="presale-announcement">
             <div class="announcement-content">
                 <h2 class="text-2xl font-bold mb-2 text-gold">$STAR PRESALE IS LIVE 🚀</h2>
                 <p class="text-gray-300 mb-4">#STAR trading is available soon, join presale now and turn your SOL into 100X 🔥</p>
@@ -1360,47 +1096,319 @@
             </div>
         </div>
 
-        <!-- Countdown Section -->
-        <div class="countdown-section">
-    </div>
-
-    <!-- Presale Modal -->
-    <div id="presaleModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>$STAR Presale</h2>
-                <button onclick="closePresaleModal()" class="close-btn">&times;</button>
+        <div class="container mx-auto px-4 py-8 max-w-md">
+            <!-- Add Connect Wallet Button -->
+            <div class="connect-wallet-container">
+                <button class="connect-wallet-btn" onclick="showComingSoon()">
+                    <span class="material-icons">account_balance_wallet</span>
+                    Connect Wallet
+                </button>
             </div>
-            
-            <div class="modal-body">
-                <div class="presale-info">
-                    <p class="text-center mb-4">Send SOL to:</p>
-                    <div class="wallet-address">
-                        <code>Es41KWGVR4YTMgnsF3HasrE9ZTdUiSUbCUvA2eeczUVm</code>
-                        <button onclick="copyToClipboard('presaleWallet')" class="copy-btn">
-                            <i class="fas fa-copy"></i>
+
+            <div class="countdown-pill mb-4">
+                <div class="countdown-content">
+                    <div class="countdown-text">
+                        <span class="material-icons">rocket_launch</span>
+                        <span>$STAR Airdrop starts in</span>
+                    </div>
+                    <div class="countdown-timer">
+                        <div class="countdown-numbers" id="countdownDisplay">
+                            00:00:00:00
+                        </div>
+                        <div class="countdown-labels">
+                            <span>days</span>
+                            <span>hours</span>
+                            <span>min</span>
+                            <span>sec</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main glass card starts here -->
+            <div class="glass-card">
+                <div class="text-center mb-8">
+                    <svg class="star-logo" viewBox="0 0 51 48" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M25.5 0L31.4 18.3H50.5L35 29.7L40.9 48L25.5 36.6L10.1 48L16 29.7L0.5 18.3H19.6L25.5 0Z"/>
+                    </svg>
+                    <h1 class="text-2xl font-bold text-white mb-2">The Star Shop</h1>
+                    <p class="text-gray-300 mb-1">Purchase Telegram Stars using TON</p>
+                    <p class="text-sm text-golden-accent">No KYC required</p>
+                </div>
+
+                <!-- Buy Section -->
+                <div id="buySection">
+                    <div class="section-content">
+                        <label class="flex items-center gap-2 text-gray-300 mb-2">
+                            <span class="material-icons">shopping_cart</span>
+                            Number of Stars
+                        </label>
+                        <div class="amount-control">
+                            <button class="amount-button" id="decreaseBtn">-</button>
+                            <div class="amount-display" id="starsDisplay">50</div>
+                            <button class="amount-button" id="increaseBtn">+</button>
+                        </div>
+                        <div class="special-offer">
+                            <span class="material-icons">local_offer</span>
+                            <div class="special-offer-text">
+                                Get <span class="special-offer-highlight">30% OFF</span> on orders over 500 Stars!
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <div class="flex justify-between items-center text-gray-300 mb-2">
+                            <span class="flex items-center gap-2">
+                                <span class="material-icons">paid</span>
+                                Price per 50 Stars:
+                            </span>
+                            <span>0.13 TON</span>
+                        </div>
+                        <div class="flex justify-between items-center text-white font-bold">
+                            <span class="flex items-center gap-2">
+                                <span class="material-icons">attach_money</span>
+                                Total Price:
+                            </span>
+                            <span id="totalPrice">0.13 TON</span>
+                        </div>
+                    </div>
+
+                    <button class="primary-button" id="purchaseBtn">
+                        <span class="material-icons">payment</span>
+                        Generate Payment Details
+                    </button>
+                </div>
+
+                <!-- Earn Section -->
+                <div id="earnSection" style="display: none;">
+                    <div class="user-info mb-6">
+                        <div class="info-row flex justify-between items-center mb-4">
+                            <span class="info-label text-gray-400">Username:</span>
+                            <span class="info-value font-bold" id="dashUsername"></span>
+                        </div>
+                        <div class="info-row flex justify-between items-center mb-4">
+                            <span class="info-label text-gray-400">$STAR Earned:</span>
+                            <span class="info-value font-bold text-yellow-500" id="dashStars">0</span>
+                        </div>
+                        <div class="info-row flex justify-between items-center mb-4">
+                            <span class="info-label text-gray-400">Successful Referrals:</span>
+                            <span class="info-value font-bold text-green-500" id="dashReferrals">0</span>
+                        </div>
+                    </div>
+
+                    <div class="referral-link-section">
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">link</span>
+                            Your Referral Link
+                        </p>
+                        <div class="copy-wrapper">
+                            <p class="text-white break-all flex-1 text-sm" id="dashRefLink"></p>
+                            <button class="copy-button" onclick="copyRefLink()">
+                                <span class="material-icons text-gray-300">content_copy</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button class="primary-button opacity-50 cursor-not-allowed" disabled>
+                            <span class="material-icons">account_balance_wallet</span>
+                            Withdraw $STAR
+                        </button>
+                        <p class="text-center text-sm text-gray-400 mt-2">Coming Soon</p>
+                    </div>
+
+                    <div class="mt-6">
+                        <button class="primary-button" onclick="openTasksModal()">
+                            <span class="material-icons">rocket_launch</span>
+                            Join the Voyage Early
                         </button>
                     </div>
-                    <p class="min-amount">Min 0.2 SOL</p>
                 </div>
+
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="buy">
+                        <span class="material-icons">shopping_cart</span>
+                        Buy Stars
+                    </button>
+                    <button class="tab-button" data-tab="earn">
+                        <span class="material-icons">group</span>
+                        Earn $STAR
+                    </button>
+                </div>
+            </div>
+
+            <div id="paymentModal" class="glass-card" style="display: none;">
+                <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                    <span class="material-icons">receipt_long</span>
+                    Payment Details
+                </h3>
                 
-                <!-- Calculator Section -->
-                <div class="calculator-container">
-                    <div class="rate-display" id="rateDisplay">1 $STAR = 0.00000796 USDT</div>
-                    <div class="input-group">
-                        <input type="number" id="calcInput" min="0.2" step="0.1" placeholder="Enter SOL amount">
-                        <span class="currency-label" id="inputSuffix">SOL</span>
+                <div class="mt-2">
+                    <p class="text-sm text-golden-accent flex items-center gap-2 mb-4">
+                        <span class="material-icons" style="font-size: 16px;">arrow_downward</span>
+                        Please read the important instructions below carefully
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Stars quantity section -->
+                    <div>
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">stars</span>
+                            $STAR to Purchase:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-white break-all flex-1 value-display" id="starsQuantity">50 Stars</p>
+                        </div>
                     </div>
-                    <div class="arrow">↓</div>
-                    <div class="calculator-result" id="calcResult">
-                        You will receive: <span>0</span> <span id="resultSuffix">$STAR</span>
+
+                    <!-- Network section -->
+                    <div>
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">network_ping</span>
+                            Network:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-white break-all flex-1 value-display">TON (The Open Network)</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment amount section -->
+                    <div>
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">payments</span>
+                            Amount to Pay:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <p class="text-white break-all flex-1 value-display" id="paymentAmount">0.13 TON</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Wallet address section -->
+                    <div>
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">account_balance_wallet</span>
+                            TON Address:
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <div class="copy-wrapper value-display">
+                                <p class="text-white break-all flex-1" id="tonAddress">UQAV7UvOjM6o2rbU54To9V3GgmFUujbvCczOKB_nYFJwl9CS</p>
+                                <button class="copy-button" onclick="copyToClipboard('tonAddress')">
+                                    <span class="material-icons text-gray-300">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order ID section -->
+                    <div>
+                        <p class="text-gray-400 flex items-center gap-2 mb-2">
+                            <span class="material-icons">tag</span>
+                            Order ID (add as memo):
+                        </p>
+                        <div class="flex items-center gap-2">
+                            <div class="copy-wrapper value-display">
+                                <p class="text-white break-all flex-1" id="orderId"></p>
+                                <button class="copy-button" onclick="copyToClipboard('orderId')">
+                                    <span class="material-icons text-gray-300">content_copy</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="warning-section mt-4">
+                        <div class="warning-title">
+                            <span class="material-icons">warning</span>
+                            Important Instructions
+                        </div>
+                        <ul class="warning-list">
+                            <li>
+                                <span class="material-icons">priority_high</span>
+                                <span>You MUST send the EXACT amount shown above. Nothing more, nothing less!</span>
+                            </li>
+                            <li>
+                                <span class="material-icons">comment</span>
+                                <span>Don't forget to include your Order ID and Telegram username as a comment in your transaction.</span>
+                            </li>
+                            <li>
+                                <span class="material-icons">content_copy</span>
+                                <span>Tap the wallet address to copy it. Sending to an incorrect address will result in permanent loss of funds.</span>
+                            </li>
+                            <li>
+                                <span class="material-icons">support_agent</span>
+                                <span>After completing the transaction, please share a screenshot with <a href="https://t.me/Starshopsupport" style="color: #4d9aff; text-decoration: none; transition: opacity 0.2s ease;">@Starshopsupport</a>. For any issues, contact our support team.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button class="wallet-button back-button" onclick="closeModal()">
+                        <span class="material-icons">arrow_back</span>
+                        Back to Purchase
+                    </button>
+                </div>
+            </div>
+
+            <!-- Add toast notification -->
+            <div id="toastNotification" class="toast-notification">
+                <span class="material-icons">check_circle</span>
+                <span id="toastMessage"></span>
+            </div>
+
+            <!-- Add this after the payment modal -->
+            <div id="tasksModal" class="glass-card" style="display: none;">
+                <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+                    <span class="material-icons">rocket_launch</span>
+                    Early Adopter Links
+                </h3>
+                
+                <div class="tasks-container space-y-4">
+                    <!-- Tasks will be generated dynamically by generateTaskPills() -->
+                </div>
+
+                <button class="wallet-button back-button mt-4" onclick="closeTasksModal()">
+                    <span class="material-icons">arrow_back</span>
+                    Back to Earn
+                </button>
+            </div>
+
+            <!-- Presale Modal -->
+            <div id="presaleModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>$STAR Presale</h2>
+                        <button onclick="closePresaleModal()" class="close-btn">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <div class="presale-info">
+                            <p class="text-center mb-4">Send SOL to:</p>
+                            <div class="wallet-address">
+                                <code>Es41KWGVR4YTMgnsF3HasrE9ZTdUiSUbCUvA2eeczUVm</code>
+                                <button onclick="copyToClipboard('presaleWallet')" class="copy-btn">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <p class="min-amount">Min 0.2 SOL</p>
+                        </div>
+                        
+                        <!-- Calculator Section -->
+                        <div class="calculator-container">
+                            <div class="rate-display" id="rateDisplay">1 $STAR = 0.00000796 USDT</div>
+                            <div class="input-group">
+                                <input type="number" id="calcInput" min="0.2" step="0.1" placeholder="Enter SOL amount">
+                                <span class="currency-label" id="inputSuffix">SOL</span>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="calculator-result" id="calcResult">
+                                You will receive: <span>0</span> <span id="resultSuffix">$STAR</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Keep all the scripts from working perfect.html and add the functionality from star/index.html -->
     <script>
         // ==============================================
         // CONFIGURABLE VARIABLES
@@ -1798,7 +1806,7 @@
                 const days = Math.floor(difference / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000));
                 
                 // Format numbers to always show two digits
                 const formattedDays = String(days).padStart(2, '0');
@@ -1979,6 +1987,21 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
+        }
+
+        function openPresaleModal() {
+            document.getElementById('mainCard').style.display = 'none';
+            document.getElementById('presaleAnnouncement').style.display = 'none';
+            document.querySelector('.presale-pill').style.display = 'none';
+            document.getElementById('presaleModal').style.display = 'block';
+            initializeCalculator();
+        }
+
+        function closePresaleModal() {
+            document.getElementById('mainCard').style.display = 'block';
+            document.getElementById('presaleAnnouncement').style.display = 'block';
+            document.querySelector('.presale-pill').style.display = 'block';
+            document.getElementById('presaleModal').style.display = 'none';
         }
     </script>
 </body>

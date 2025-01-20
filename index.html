@@ -226,6 +226,12 @@
                 decreaseBtn.addEventListener('click', () => updateStarsAmount(-50));
                 increaseBtn.addEventListener('click', () => updateStarsAmount(50));
             }
+
+            // Initialize wallet connect button
+            const connectWalletBtn = document.querySelector('.connect-wallet-btn');
+            if (connectWalletBtn) {
+                connectWalletBtn.onclick = showComingSoon;
+            }
         }
 
         // Countdown functionality
@@ -411,18 +417,21 @@
         }
 
         function closeModal() {
-            document.getElementById('paymentModal').style.display = 'none';
             document.getElementById('mainCard').style.display = 'block';
+            document.getElementById('paymentModal').style.display = 'none';
         }
 
         function openPresaleModal() {
             document.getElementById('mainCard').style.display = 'none';
+            document.querySelector('.presale-pill').style.display = 'none';
             document.getElementById('presaleModal').style.display = 'block';
+            initializeCalculator();
         }
 
         function closePresaleModal() {
-            document.getElementById('presaleModal').style.display = 'none';
             document.getElementById('mainCard').style.display = 'block';
+            document.querySelector('.presale-pill').style.display = 'block';
+            document.getElementById('presaleModal').style.display = 'none';
         }
 
         // Price caching configuration
@@ -506,7 +515,7 @@
         }
 
         function calculateConversion(amount) {
-            if (!amount || (calculatorMode === 'sol_to_star' && amount < 0.2)) {
+            if (!amount || isNaN(amount)) {
                 document.getElementById('calcResult').innerHTML = 
                     `You will receive: <span>0</span> ${calculatorMode === 'sol_to_star' ? '$STAR' : 'SOL'}`;
                 return;
@@ -529,14 +538,38 @@
         async function initializeCalculator() {
             await fetchSolPrice();
             updateRateDisplay();
+            
+            // Add input event listener for calculator
+            const calcInput = document.getElementById('calcInput');
+            if (calcInput) {
+                calcInput.addEventListener('input', (e) => calculateConversion(e.target.value));
+            }
         }
 
-        function openPresaleModal() {
-            document.getElementById('mainCard').style.display = 'none';
-            document.querySelector('.presale-pill').style.display = 'none';
-            document.getElementById('presaleModal').style.display = 'block';
-            // Calculator is already initialized
-            updateRateDisplay();
+        // Coming soon functionality
+        function showComingSoon() {
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = 'Coming soon!';
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Copy functionality
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toastNotification');
+                const toastMessage = document.getElementById('toastMessage');
+                toastMessage.textContent = 'Copied to clipboard!';
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            });
         }
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">

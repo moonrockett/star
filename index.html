@@ -171,55 +171,138 @@
         // Initialize userData at the global scope
         let userData;
         
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Show loading immediately
-            toggleLoading(true);
-            
-            // Initialize user data
-            userData = getUserData();
-            
-            // Start countdown with cleanup
-            const cleanupCountdown = startCountdown();
-            
-            // Cleanup on page unload
-            window.addEventListener('unload', cleanupCountdown);
-            
-            async function attemptInitialization() {
-                try {
-                    console.log('Attempting initialization...');
-                    
-                    // Get user data
-                    const userData = getUserData();
-                    console.log('User data:', userData);
-                    
-                    if (!validateUserData()) {
-                        throw new Error('User data validation failed');
-                    }
+        // Initialize app state
+        const appState = {
+            initialized: false,
+            countdownInterval: null,
+            targetDate: new Date('2024-03-31T00:00:00Z')
+        };
 
-                    // Initialize calculator
-                    await initializeCalculator();
-                    
-                    // Update UI elements
-                    updateUIElements();
-                    
-                    console.log('Initialization successful');
-                    // Wait for loading animation to complete
-                    setTimeout(hideLoadingScreen, 3000);
-                } catch (error) {
-                    console.error(`Initialization attempt ${initializationAttempts + 1} failed:`, error);
-                    if (++initializationAttempts < MAX_INIT_ATTEMPTS) {
-                        console.log(`Retrying in 1 second... (Attempt ${initializationAttempts + 1}/${MAX_INIT_ATTEMPTS})`);
-                        setTimeout(attemptInitialization, 1000);
-                    } else {
-                        console.error('Max initialization attempts reached. Please refresh the page.');
-                        alert('Failed to initialize app. Please try again.');
-                        hideLoadingScreen();
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Show loading immediately
+                toggleLoading(true);
+                
+                // Initialize user data
+                userData = getUserData();
+                console.log('User data:', userData);
+                
+                // Initialize UI components
+                initializeUI();
+                
+                // Start countdown
+                startCountdown();
+                
+                // Initialize calculator
+                await initializeCalculator();
+                
+                // Mark as initialized
+                appState.initialized = true;
+                
+                // Hide loading screen after delay
+                setTimeout(hideLoadingScreen, 1000);
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Failed to initialize app. Please refresh the page.');
+                hideLoadingScreen();
+            }
+        });
+
+        // Initialize UI components
+        function initializeUI() {
+            // Initialize tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // Initialize amount controls
+            const decreaseBtn = document.getElementById('decreaseBtn');
+            const increaseBtn = document.getElementById('increaseBtn');
+            if (decreaseBtn && increaseBtn) {
+                decreaseBtn.addEventListener('click', () => updateStarsAmount(-50));
+                increaseBtn.addEventListener('click', () => updateStarsAmount(50));
+            }
+        }
+
+        // Countdown functionality
+        function startCountdown() {
+            const targetDate = appState.targetDate.getTime();
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const countdownDisplay = document.getElementById('countdownDisplay');
+                if (countdownDisplay) {
+                    countdownDisplay.textContent = 
+                        `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                
+                if (distance < 0) {
+                    if (appState.countdownInterval) {
+                        clearInterval(appState.countdownInterval);
+                    }
+                    if (countdownDisplay) {
+                        countdownDisplay.textContent = '00:00:00:00';
                     }
                 }
             }
             
-            attemptInitialization();
-        });
+            // Clear any existing interval
+            if (appState.countdownInterval) {
+                clearInterval(appState.countdownInterval);
+            }
+            
+            updateCountdown(); // Initial call
+            appState.countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        // Tab switching functionality
+        function switchTab(tab) {
+            const buySection = document.getElementById('buySection');
+            const earnSection = document.getElementById('earnSection');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.tab === tab) {
+                    button.classList.add('active');
+                }
+            });
+            
+            if (tab === 'buy') {
+                buySection.style.display = 'block';
+                earnSection.style.display = 'none';
+            } else {
+                buySection.style.display = 'none';
+                earnSection.style.display = 'block';
+            }
+        }
+
+        // Stars amount update functionality
+        function updateStarsAmount(change) {
+            const display = document.getElementById('starsDisplay');
+            const currentAmount = parseInt(display.textContent);
+            const newAmount = Math.max(50, currentAmount + change);
+            display.textContent = newAmount;
+            updateTotalPrice(newAmount);
+        }
+
+        // Update total price
+        function updateTotalPrice(stars) {
+            const pricePerStar = 0.0026; // TON per star
+            const totalPrice = (stars * pricePerStar).toFixed(2);
+            document.getElementById('totalPrice').textContent = `${totalPrice} TON`;
+        }
 
         // Validate required parameters
         function validateUserData() {
@@ -237,10 +320,6 @@
             }
             return true;
         }
-
-        // Initialize app with error handling and retries
-        let initializationAttempts = 0;
-        const MAX_INIT_ATTEMPTS = 3;
 
         // Show/hide loading overlay
         function toggleLoading(show) {
@@ -458,45 +537,6 @@
             document.getElementById('presaleModal').style.display = 'block';
             // Calculator is already initialized
             updateRateDisplay();
-        }
-
-        // Countdown functionality
-        function startCountdown() {
-            const targetDate = new Date('2024-03-31T00:00:00Z').getTime();
-            let countdownInterval;
-            
-            function updateCountdown() {
-                const now = new Date().getTime();
-                const distance = targetDate - now;
-                
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                const countdownDisplay = document.getElementById('countdownDisplay');
-                if (countdownDisplay) {
-                    countdownDisplay.textContent = 
-                        `${days.toString().padStart(2, '0')}:${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                }
-                
-                if (distance < 0) {
-                    clearInterval(countdownInterval);
-                    if (countdownDisplay) {
-                        countdownDisplay.textContent = '00:00:00:00';
-                    }
-                }
-            }
-            
-            updateCountdown(); // Initial call
-            countdownInterval = setInterval(updateCountdown, 1000);
-            
-            // Cleanup function
-            return () => {
-                if (countdownInterval) {
-                    clearInterval(countdownInterval);
-                }
-            };
         }
     </script>
     <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">

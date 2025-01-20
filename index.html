@@ -373,7 +373,7 @@
                 initializeUI();
                 
                 // Start countdown
-                startCountdown();
+                const countdownInterval = initializeCountdown();
                 
                 // Initialize calculator
                 await initializeCalculator();
@@ -707,7 +707,7 @@
         // Call this when initializing the app
         generateTaskPills();
 
-        // Add this with your other initialization code
+        // Update countdown function
         function updateCountdown() {
             const airdropDate = new Date('2025-02-15T00:00:00Z');
             const now = new Date();
@@ -717,7 +717,7 @@
                 const days = Math.floor(difference / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
                 
                 // Format numbers to always show two digits
                 const formattedDays = String(days).padStart(2, '0');
@@ -727,28 +727,22 @@
                 
                 const countdownDisplay = document.getElementById('countdownDisplay');
                 if (countdownDisplay) {
-                    document.getElementById('countdownDisplay').textContent = 
+                    countdownDisplay.textContent = 
                         `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
                 }
             } else {
                 const countdownDisplay = document.getElementById('countdownDisplay');
                 if (countdownDisplay) {
-                    document.getElementById('countdownDisplay').textContent = "LIVE!";
+                    countdownDisplay.textContent = "LIVE!";
                 }
             }
         }
 
-        // Initialize countdown as soon as possible
-        window.addEventListener('load', function() {
-            updateCountdown();
-            // Update every second
-            setInterval(updateCountdown, 1000);
-        });
-
-        // Also try to start countdown when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCountdown();
-        });
+        // Countdown initialization
+        function initializeCountdown() {
+            updateCountdown(); // Initial call
+            return setInterval(updateCountdown, 1000); // Update every second
+        }
 
         // Add this function to handle task completion
         async function handleTaskCompletion(taskType) {
@@ -2202,21 +2196,6 @@
             document.querySelector('.glass-card').style.display = 'block';
         }
 
-        function copyToClipboard(elementId) {
-            const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                const toast = document.getElementById('toastNotification');
-                const toastMessage = document.getElementById('toastMessage');
-                toastMessage.textContent = elementId === 'tonAddress' ? 
-                    'Wallet address copied to clipboard' : 
-                    'Order ID copied to clipboard';
-                toast.classList.add('show');
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            });
-        }
-
         // Add event listener for purchase button
         document.getElementById('purchaseBtn').addEventListener('click', function() {
             const newOrderId = generateOrderId();
@@ -2383,7 +2362,7 @@
         // Call this when initializing the app
         generateTaskPills();
 
-        // Add this with your other initialization code
+        // Update countdown function
         function updateCountdown() {
             const airdropDate = new Date('2025-02-15T00:00:00Z');
             const now = new Date();
@@ -2393,7 +2372,7 @@
                 const days = Math.floor(difference / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
                 
                 // Format numbers to always show two digits
                 const formattedDays = String(days).padStart(2, '0');
@@ -2403,28 +2382,22 @@
                 
                 const countdownDisplay = document.getElementById('countdownDisplay');
                 if (countdownDisplay) {
-                    document.getElementById('countdownDisplay').textContent = 
+                    countdownDisplay.textContent = 
                         `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
                 }
             } else {
                 const countdownDisplay = document.getElementById('countdownDisplay');
                 if (countdownDisplay) {
-                    document.getElementById('countdownDisplay').textContent = "LIVE!";
+                    countdownDisplay.textContent = "LIVE!";
                 }
             }
         }
 
-        // Initialize countdown as soon as possible
-        window.addEventListener('load', function() {
-            updateCountdown();
-            // Update every second
-            setInterval(updateCountdown, 1000);
-        });
-
-        // Also try to start countdown when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCountdown();
-        });
+        // Countdown initialization
+        function initializeCountdown() {
+            updateCountdown(); // Initial call
+            return setInterval(updateCountdown, 1000); // Update every second
+        }
 
         // Add this function to handle task completion
         async function handleTaskCompletion(taskType) {

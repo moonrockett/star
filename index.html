@@ -215,6 +215,61 @@
             targetDate: new Date('2024-03-31T00:00:00Z')
         };
 
+        // Show coming soon message for wallet connect
+        function showComingSoon() {
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = 'Wallet connect coming soon! 🚀';
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Countdown functionality
+        function startCountdown() {
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const targetDate = appState.targetDate.getTime();
+                const difference = targetDate - now;
+
+                if (difference > 0) {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+                    
+                    // Format numbers to always show two digits
+                    const formattedDays = String(days).padStart(2, '0');
+                    const formattedHours = String(hours).padStart(2, '0');
+                    const formattedMinutes = String(minutes).padStart(2, '0');
+                    const formattedSeconds = String(seconds).padStart(2, '0');
+                    
+                    const countdownDisplay = document.getElementById('countdownDisplay');
+                    if (countdownDisplay) {
+                        countdownDisplay.textContent = 
+                            `${formattedDays}:${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+                    }
+                } else {
+                    const countdownDisplay = document.getElementById('countdownDisplay');
+                    if (countdownDisplay) {
+                        countdownDisplay.textContent = "LIVE!";
+                    }
+                    if (appState.countdownInterval) {
+                        clearInterval(appState.countdownInterval);
+                    }
+                }
+            }
+
+            // Clear any existing interval
+            if (appState.countdownInterval) {
+                clearInterval(appState.countdownInterval);
+            }
+
+            updateCountdown(); // Initial call
+            appState.countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
         // Initialize UI components
         function initializeUI() {
             try {
@@ -240,6 +295,17 @@
                 if (connectWalletBtn) {
                     connectWalletBtn.onclick = showComingSoon;
                 }
+
+                // Initialize copy buttons
+                const copyButtons = document.querySelectorAll('.copy-btn');
+                copyButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const textToCopy = this.previousElementSibling.textContent;
+                        navigator.clipboard.writeText(textToCopy).then(() => {
+                            showComingSoon('Copied to clipboard!');
+                        });
+                    });
+                });
             } catch (error) {
                 console.error('Error initializing UI:', error);
             }
@@ -2000,17 +2066,6 @@
         async function handleTaskClick(taskType, link, button) {
             // Directly navigate to the link
             window.open(link, '_blank');
-        }
-
-        // Show coming soon message for wallet connect
-        function showComingSoon() {
-            const toast = document.getElementById('toastNotification');
-            const toastMessage = document.getElementById('toastMessage');
-            toastMessage.textContent = 'Wallet connect coming soon! 🚀';
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
         }
 
         function openPresaleModal() {
